@@ -42,7 +42,7 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 
 <section class="screen on" id="s-join">
   <h1>Mimic<br>Party</h1>
-  <p class="muted">Un son, tout le monde l'imite avec la voix en même temps, chacun depuis chez soi. Hauteur et rythme sont notés.</p>
+  <p class="muted">Un son, tout le monde l'imite avec la voix en même temps, chacun depuis chez soi. Hauteur et rythme sont notés. Vous pouvez discuter à voix haute entre les manches.</p>
   <input id="name" placeholder="Ton prénom" maxlength="14" autocomplete="off">
   <input id="code" placeholder="Code de la salle (pour rejoindre)" maxlength="4" autocomplete="off" style="text-transform:uppercase">
   <button id="create">Créer une salle</button>
@@ -61,6 +61,7 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
     <input id="rounds" type="range" min="3" max="10" value="5" style="padding:0">
     <button id="start">Lancer la partie</button>
   </div>
+  <p class="muted" id="clipinfo"></p>
   <p class="muted" id="waitHost"></p>
 </section>
 
@@ -90,10 +91,12 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 </section>
 
 </main>
+<button id="mutebtn" class="alt" style="position:fixed;right:12px;bottom:12px;width:auto;padding:.5em .9em;font-size:.95rem;margin:0;display:none"></button>
 <script>
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)};
+let chatStream=null,clips=[],peers=new Map(),userMuted=false;
 let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken='',resToken='',rot=0;
 
 /* ---------- Réseau (Supabase Realtime, sans serveur à toi) ---------- */
@@ -124,7 +127,7 @@ const pubR=()=>({room:R.code,phase:R.phase,hostId:R.hostId,round:R.round,rounds:
   players:[...R.players.values()].map(p=>({id:p.id,name:p.name,score:p.score,rs:p.rs,done:p.done}))});
 function push(){S=pubR();send('state',S);render()}
 function startRound(){
-  R.round++;R.phase='listen';R.ref=makeRef();R.token=rid();R.wheel=null;
+  R.round++;R.phase='listen';R.ref=pickRef();R.token=rid();R.wheel=null;
   R.players.forEach(p=>{p.done=false;p.rs=0});
   clearTimeout(R.timer);R.timer=setTimeout(endRound,(R.ref.dur+14)*1000);
 }
@@ -170,6 +173,7 @@ function connect(code,host,name){
   room=code;amHost=host;
   ch=sb.channel('mimic-'+code,{config:{broadcast:{self:false},presence:{key:me}}});
   ch.on('broadcast',{event:'state'},({payload})=>{S=payload;render()});
+  ch.on('broadcast',{event:'rtc'},({payload})=>onRtc(payload));
   ch.on('broadcast',{event:'reject'},({payload})=>{if(payload.id===me)fail(payload.error)});
   if(host){
     ch.on('broadcast',{event:'act'},({payload})=>hostAct(payload.id,payload));
@@ -204,6 +208,7 @@ async function enter(joinRoom){
     stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
   }catch(e){$('err').textContent="Le micro est bloqué. Autorise-le dans le navigateur puis réessaie.";return}
   analyser=ac.createAnalyser();analyser.fftSize=2048;ac.createMediaStreamSource(stream).connect(analyser);
+  try{chatStream=stream.clone();await chatStream.getAudioTracks()[0].applyConstraints({echoCancellation:true,noiseSuppression:true,autoGainControl:true}).catch(()=>{})}catch(e){chatStream=null}
   me=rid();
   if(joinRoom)connect($('code').value.toUpperCase().trim(),false,name);else connect(newCode(),true,name);
 }
@@ -218,6 +223,7 @@ $('again').onclick=()=>act('again');
 
 const isHost=()=>S.hostId===me;
 function render(){
+  syncPeers();
   if(S.phase==='lobby'){
     $('lcode').textContent=S.room;
     $('chips').innerHTML='';
@@ -270,7 +276,7 @@ const median=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)
 function score(refF,pl){
   const rv=refF.filter(x=>x!==null);if(pl.filter(x=>x!==null).length<4)return{total:0,pitch:0,rhythm:0};
   const rm=median(rv);let best=null;
-  for(let s=0;s<=14;s++){
+  for(let s=0;s<=20;s++){
     const seg=pl.slice(s,s+refF.length),sv=seg.filter(x=>x!==null);if(sv.length<3)continue;
     const pm=median(sv);let both=0,either=0,err=0;
     for(let j=0;j<refF.length;j++){
@@ -283,21 +289,93 @@ function score(refF,pl){
   return best?{total:Math.round(best.tot*100),pitch:Math.round(best.pitch*100),rhythm:Math.round(best.iou*100)}:{total:0,pitch:0,rhythm:0};
 }
 
+/* ---------- Répliques cultes (sons.json + fichiers audio du dépôt) ---------- */
+fetch('sons.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).then(a=>{clips=Array.isArray(a)?a.filter(c=>c&&c.fichier):[];updClip()}).catch(()=>updClip());
+function updClip(){$('clipinfo').textContent=clips.length?(clips.length+' répliques cultes chargées.'):'Aucune réplique trouvée (sons.json) : mode mélodies.'}
+const clipCache={};
+async function loadClip(url){
+  if(clipCache[url])return clipCache[url];
+  try{
+    const r=await fetch(url);if(!r.ok)return null;
+    const buf=await ac.decodeAudioData(await r.arrayBuffer());
+    const d=buf.getChannelData(0),sr=buf.sampleRate;let pk=0;for(let i=0;i<d.length;i++)pk=Math.max(pk,Math.abs(d[i]));
+    const g=pk?1/pk:1,hop=Math.round(sr*FR/1000),win=new Float32Array(2048),frames=[];
+    for(let s=0;s+2048<=d.length;s+=hop){for(let i=0;i<2048;i++)win[i]=d[s+i]*g;const x=detect(win,sr);frames.push(x.f?midi(x.f):null)}
+    return clipCache[url]={buf,frames};
+  }catch(e){return null}
+}
+function playBuf(buf){const s=ac.createBufferSource();s.buffer=buf;s.connect(ac.destination);s.start()}
+function pickRef(){
+  if(!clips.length)return makeRef();
+  R.used=R.used||[];let pool=clips.filter((c,i)=>!R.used.includes(i));
+  if(!pool.length){R.used=[];pool=clips}
+  const c=pool[Math.floor(Math.random()*pool.length)];R.used.push(clips.indexOf(c));
+  return{clip:c.fichier,titre:c.titre||'',dur:c.duree||8};
+}
+
+/* ---------- Discussion vocale (WebRTC, signalisation via Supabase) ---------- */
+const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const rtcQ=[];setInterval(()=>{const m=rtcQ.shift();if(m&&ch)send('rtc',m)},150);
+const rtcSend=(to,kind,data)=>rtcQ.push({from:me,to,kind,data});
+const gathered=pc=>new Promise(res=>{
+  if(pc.iceGatheringState==='complete')return res();
+  const t=setTimeout(res,2500);
+  pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res()}});
+});
+const chatOn=()=>!userMuted&&S&&S.phase!=='listen';
+function getPeer(id){
+  let p=peers.get(id);if(p)return p;
+  const pc=new RTCPeerConnection(ICE),audio=new Audio();audio.autoplay=true;
+  chatStream.getTracks().forEach(t=>pc.addTrack(t,chatStream));
+  pc.ontrack=e=>{audio.srcObject=e.streams[0];audio.muted=!chatOn();audio.play().catch(()=>{})};
+  p={pc,audio,called:false};peers.set(id,p);return p;
+}
+async function onRtc(m){
+  if(m.to!==me||!chatStream)return;
+  try{
+    const p=getPeer(m.from);
+    if(m.kind==='offer'){await p.pc.setRemoteDescription(m.data);const a=await p.pc.createAnswer();await p.pc.setLocalDescription(a);await gathered(p.pc);rtcSend(m.from,'answer',p.pc.localDescription)}
+    else if(m.kind==='answer'&&p.pc.signalingState==='have-local-offer')await p.pc.setRemoteDescription(m.data);
+  }catch(e){}
+}
+async function callPeer(id){
+  const p=getPeer(id);if(p.called)return;p.called=true;
+  try{const o=await p.pc.createOffer();await p.pc.setLocalDescription(o);await gathered(p.pc);rtcSend(id,'offer',p.pc.localDescription)}catch(e){}
+}
+function syncPeers(){
+  if(!chatStream||!S)return;
+  const ids=S.players.map(p=>p.id).filter(i=>i!==me);
+  ids.forEach(id=>{getPeer(id);if(me<id)callPeer(id)});
+  [...peers.keys()].forEach(id=>{if(!ids.includes(id)){const p=peers.get(id);p.pc.close();p.audio.srcObject=null;peers.delete(id)}});
+  const on=chatOn();
+  chatStream.getAudioTracks().forEach(t=>t.enabled=on);
+  peers.forEach(p=>{p.audio.muted=!on});
+  $('mutebtn').style.display='';
+  $('mutebtn').textContent=userMuted?'🔇 Micro coupé':(S.phase==='listen'?'🤫 Chat en pause':'🎙️ Chat actif');
+}
+$('mutebtn').onclick=()=>{userMuted=!userMuted;syncPeers()};
+
 /* ---------- Manche ---------- */
 async function playRound(st){
-  $('ptitle').textContent='Écoute bien';$('orb').textContent='🔊';$('pstatus').textContent='';
-  await ac.resume();playRef(st.ref);
-  await sleep(st.ref.dur*1000+800);
+  $('ptitle').textContent='Écoute bien';$('orb').textContent='🔊';$('pstatus').textContent=st.ref.titre?'Réplique : '+st.ref.titre:'';
+  await ac.resume();
+  let dur=st.ref.dur,rf;
+  if(st.ref.clip){
+    const c=await loadClip(st.ref.clip);
+    if(!c){$('ptitle').textContent='Son introuvable';$('pstatus').textContent=st.ref.clip;act('submit',{score:0});return}
+    dur=c.buf.duration;rf=c.frames;playBuf(c.buf);
+  }else{rf=refFrames(st.ref);playRef(st.ref)}
+  await sleep(dur*1000+800);
   for(let c=3;c>=1;c--){$('ptitle').textContent='Prépare-toi';$('orb').textContent=c;await sleep(600)}
   $('ptitle').textContent='À toi !';$('orb').textContent='🎤';
-  const frames=[],buf=new Float32Array(analyser.fftSize),total=Math.round((st.ref.dur+1.6)*1000/FR);
+  const frames=[],buf=new Float32Array(analyser.fftSize),total=Math.round((dur+1.6)*1000/FR);
   await new Promise(res=>{const id=setInterval(()=>{
     analyser.getFloatTimeDomainData(buf);const r=detect(buf,ac.sampleRate);
     frames.push(r.f?midi(r.f):null);
     $('lvl').style.width=Math.min(100,r.rms*600)+'%';$('orb').style.transform='scale('+(1+Math.min(.35,r.rms*3))+')';
     if(frames.length>=total){clearInterval(id);res()}},FR)});
   $('orb').style.transform='';$('lvl').style.width='0';
-  const sc=score(refFrames(st.ref),frames);
+  const sc=score(rf,frames);
   $('ptitle').textContent='Ton score : '+sc.total;$('orb').textContent=sc.total;
   $('pstatus').textContent='Hauteur '+sc.pitch+' % · Rythme '+sc.rhythm+' %. On attend les autres.';
   act('submit',{score:sc.total});
