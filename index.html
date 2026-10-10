@@ -49,6 +49,7 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 <section class="screen on" id="s-join">
   <h1>Mimic<br>Party</h1>
   <p class="muted">Un son, tout le monde l'imite avec la voix en même temps, chacun depuis chez soi. Hauteur et rythme sont notés. Vous pouvez discuter à voix haute entre les manches.</p>
+  <p class="muted" style="font-size:.8rem">Version 4</p>
   <input id="name" placeholder="Ton prénom" maxlength="14" autocomplete="off">
   <input id="code" placeholder="Code de la salle (pour rejoindre)" maxlength="4" autocomplete="off" style="text-transform:uppercase">
   <button id="create">Créer une salle</button>
@@ -125,6 +126,7 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 </section>
 
 </main>
+<div id="vbanner" style="display:none;position:fixed;left:0;right:0;top:0;z-index:9;background:var(--yel);color:var(--ink);padding:.7em 1em;text-align:center;font-weight:700;padding-top:calc(.7em + env(safe-area-inset-top,0px))">Ta page n'est pas à jour. <button id="vreload" style="width:auto;margin:6px 0 0 8px;padding:.4em .9em;font-size:1rem">Mettre à jour</button></div>
 <button id="mutebtn" class="alt" style="position:fixed;right:12px;bottom:12px;width:auto;padding:.5em .9em;font-size:.95rem;margin:0;display:none"></button>
 <script>
 const $=id=>document.getElementById(id);
@@ -138,6 +140,7 @@ let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken
 /* ---------- Réseau (Supabase Realtime, sans serveur à toi) ---------- */
 const SB_URL='https://hyhkemsvxulgdymoznwt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5aGtlbXN2eHVsZ2R5bW96bnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MDkyMTIsImV4cCI6MjEwNzE4NTIxMn0.pdwyE5EoNuXKFwyR9saBOKxbEZQBFlVnROOBOxbroGI';
+const VERSION='4';
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
 let ch=null,amHost=false,R=null;
 const rid=()=>Math.random().toString(36).slice(2,10);
@@ -159,7 +162,7 @@ const SEG=[
  {t:'Poisse −30',f:(w)=>{w.score=Math.max(0,w.score-30);return w.name+' perd 30 points. Aïe.'}},
  {t:'Rien',f:()=>'Rien ne se passe. Suspense gâché.'}
 ];
-const pubR=()=>({room:R.code,phase:R.phase,hostId:R.hostId,round:R.round,rounds:R.rounds,token:R.token,ref:R.ref,wheel:R.wheel,mode:R.mode,performerId:R.performerId,
+const pubR=()=>({room:R.code,phase:R.phase,hostId:R.hostId,round:R.round,rounds:R.rounds,token:R.token,ref:R.ref,wheel:R.wheel,mode:R.mode,performerId:R.performerId,v:VERSION,
   players:[...R.players.values()].map(p=>({id:p.id,name:p.name,score:p.score,rs:p.rs,done:p.done}))});
 function push(){S=pubR();send('state',S);render()}
 function startRound(){
@@ -238,6 +241,7 @@ function connect(code,host,name){
     ch.on('broadcast',{event:'act'},({payload})=>hostAct(payload.id,payload));
     ch.on('broadcast',{event:'hello'},({payload})=>hostHello(payload));
     ch.on('broadcast',{event:'perform'},({payload})=>hostGotClip(payload));
+    ch.on('broadcast',{event:'imit'},({payload})=>send('imit',payload));
   }
   ch.on('presence',{event:'leave'},({key})=>{
     if(host)hostLeave(key);
@@ -272,9 +276,10 @@ async function enter(joinRoom){
   me=rid();
   if(joinRoom)connect($('code').value.toUpperCase().trim(),false,name);else connect(newCode(),true,name);
 }
+$('vreload').onclick=()=>{location.href=location.pathname+'?room='+(room||'')+'&v='+(S&&S.v||Date.now())};
 $('create').onclick=()=>enter(false);
 $('join').onclick=()=>enter(true);
-$('copy').onclick=()=>{const l=location.origin+location.pathname+'?room='+room;
+$('copy').onclick=()=>{const l=location.origin+location.pathname+'?room='+room+'&v='+VERSION;
   (navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(()=>$('copy').textContent='Lien copié !').catch(()=>prompt('Copie ce lien :',l))};
 $('rounds').oninput=e=>{$('rv').textContent=e.target.value;act('rounds',{v:+e.target.value})};
 $('start').onclick=()=>act('start');
@@ -284,6 +289,7 @@ $('again').onclick=()=>act('again');
 const isHost=()=>S.hostId===me;
 function render(){
   syncPeers();
+  $('vbanner').style.display=(S.v&&S.v!==VERSION)?'':'none';
   if(S.phase==='lobby'){
     $('lcode').textContent=S.room;
     $('chips').innerHTML='';
@@ -470,9 +476,9 @@ async function sendImit(token,blob){
 }
 const playBufWait=buf=>new Promise(res=>{const x=ac.createBufferSource();x.buffer=buf;x.connect(ac.destination);x.onended=res;x.start()});
 async function playB64(m){
-  if(!m)return;
-  if(!m.dec){try{const bin=atob(m.b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);m.dec=await ac.decodeAudioData(u.buffer)}catch(e){return}}
-  await playBufWait(m.dec);
+  if(!m)return false;
+  if(!m.dec){try{const bin=atob(m.b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);m.dec=await ac.decodeAudioData(u.buffer)}catch(e){return false}}
+  await playBufWait(m.dec);return true;
 }
 async function playOriginal(){
   const r=S.ref;
@@ -488,15 +494,16 @@ async function reveal(){
   $('revorb').style.background='';$('revorb').textContent='🎧';
   $('revname').textContent="L'original";
   $('revtxt').textContent='Rappel de la réplique'+(S.ref&&S.ref.titre?' : '+S.ref.titre:'');
-  await sleep(800);await playOriginal();await sleep(1200);
+  await ac.resume();await sleep(800);await playOriginal();await sleep(1200);
   for(let i=0;i<rows.length;i++){
     if(!alive())return false;
     const p=rows[i];
     $('revlabel').textContent='Imitation '+(i+1)+' sur '+rows.length;
     $('revname').textContent=p.name;$('revorb').style.background='';$('revorb').textContent='🎧';$('revtxt').textContent='Écoute…';
-    for(let k=0;k<20&&!(imits[tok]&&imits[tok][p.id]);k++)await sleep(100);
+    for(let k=0;k<40&&!(imits[tok]&&imits[tok][p.id]);k++)await sleep(100);
     await sleep(500);
-    await playB64(imits[tok]&&imits[tok][p.id]);
+    const ok=await playB64(imits[tok]&&imits[tok][p.id]);
+    if(!ok){$('revtxt').textContent='🔇 Son non reçu ou illisible sur cet appareil';await sleep(1500)}
     await sleep(900);
     if(!alive())return false;
     $('revorb').textContent='…';$('revtxt').textContent='La note est…';await sleep(1400);
@@ -527,7 +534,7 @@ async function playRound(st){
   for(let c=3;c>=1;c--){$('ptitle').textContent='Prépare-toi';$('orb').textContent=c;await sleep(600)}
   $('ptitle').textContent='À toi !';$('orb').textContent='🎤';
   const frames=[],buf=new Float32Array(analyser.fftSize),total=Math.round((dur+1.6)*1000/FR);
-  const rec=new MediaRecorder(stream,{audioBitsPerSecond:24000}),chunks=[];rec.ondataavailable=e=>chunks.push(e.data);
+  const rec=new MediaRecorder(stream,{audioBitsPerSecond:16000}),chunks=[];rec.ondataavailable=e=>chunks.push(e.data);
   const stopped=new Promise(r=>rec.onstop=r);rec.start();
   await new Promise(res=>{const id=setInterval(()=>{
     analyser.getFloatTimeDomainData(buf);const r=detect(buf,ac.sampleRate);
