@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mimic Party</title>
+<title>Mimic Party : imite les répliques cultes avec ta voix, jeu en ligne gratuit</title>
+<meta name="description" content="Jeu gratuit entre amis : un joueur dit une réplique ou un mème, les autres l'imitent avec leur voix. Hauteur et rythme sont notés, avec discussion vocale et roue de la chance. Sans inscription.">
+<meta property="og:title" content="Mimic Party : imite les répliques cultes avec ta voix">
+<meta property="og:description" content="Un mème, une réplique, tes amis qui l'imitent. Gratuit, sans inscription, directement dans le navigateur.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1b1340">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{--ink:#1b1340;--ink2:#2c2062;--red:#ff5a4e;--yel:#ffe14d;--mint:#5fe3c0;--paper:#fff7ea}
@@ -95,13 +100,21 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 </section>
 
 <section class="screen" id="s-res" style="text-align:center">
-  <h2 id="wtitle"></h2>
-  <table id="rtab"></table>
-  <div class="wheelbox"><div class="pin"></div><div class="wheel" id="wheel"></div></div>
-  <p id="wres" style="font-size:1.25rem;font-weight:700;min-height:1.6em"></p>
-  <table id="ttab"></table>
-  <button id="next" style="display:none"></button>
-  <p class="muted" id="wait2"></p>
+  <div id="revealbox">
+    <p class="muted" id="revlabel"></p>
+    <h2 id="revname"></h2>
+    <div class="orb" id="revorb">🎧</div>
+    <p id="revtxt" style="font-size:1.3rem;font-weight:700;min-height:1.8em"></p>
+  </div>
+  <div id="wheelstage" style="display:none">
+    <h2 id="wtitle"></h2>
+    <table id="rtab"></table>
+    <div class="wheelbox"><div class="pin"></div><div class="wheel" id="wheel"></div></div>
+    <p id="wres" style="font-size:1.25rem;font-weight:700;min-height:1.6em"></p>
+    <table id="ttab"></table>
+    <button id="next" style="display:none"></button>
+    <p class="muted" id="wait2"></p>
+  </div>
 </section>
 
 <section class="screen" id="s-end">
@@ -117,6 +130,7 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)};
+let imits={},seq=false;
 let perToken='',friendClips={},recNow=false;
 let chatStream=null,clips=[],peers=new Map(),userMuted=false;
 let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken='',resToken='',rot=0;
@@ -217,6 +231,7 @@ function connect(code,host,name){
   ch=sb.channel('mimic-'+code,{config:{broadcast:{self:false},presence:{key:me}}});
   ch.on('broadcast',{event:'state'},({payload})=>{S=payload;render()});
   ch.on('broadcast',{event:'rtc'},({payload})=>onRtc(payload));
+  ch.on('broadcast',{event:'imit'},({payload})=>{(imits[payload.token]=imits[payload.token]||{})[payload.id]={b64:payload.b64,mime:payload.mime}});
   ch.on('broadcast',{event:'clip'},({payload})=>{friendClips[payload.token]={b64:payload.b64,mime:payload.mime}});
   ch.on('broadcast',{event:'reject'},({payload})=>{if(payload.id===me)fail(payload.error)});
   if(host){
@@ -276,7 +291,7 @@ function render(){
     $('hostbox').style.display=isHost()?'':'none';
     $('rv').textContent=S.rounds;if(isHost()&&document.activeElement!==$('rounds'))$('rounds').value=S.rounds;
     $('waitHost').textContent=isHost()?'Tu es l\'hôte : lance la partie quand tout le monde est là.':"L'hôte (contour jaune) va lancer la partie.";
-    lastToken='';resToken='';perToken='';
+    lastToken='';resToken='';perToken='';imits={};
     $('mode').value=S.mode||'ami';
     $('modeinfo').textContent=isHost()?'':'Mode : '+({ami:"Répliques d'un ami",melodie:'Mélodies',sons:'Répliques du dépôt'}[S.mode]||'');
     show('s-lobby');
@@ -445,6 +460,55 @@ $('perrec').onclick=async()=>{
   if(amHost)hostGotClip(m);else send('perform',m);
 };
 
+/* ---------- Écouter les imitations ---------- */
+async function sendImit(token,blob){
+  try{
+    const b64=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(',')[1]);f.readAsDataURL(blob)});
+    (imits[token]=imits[token]||{})[me]={b64,mime:blob.type};
+    send('imit',{token,id:me,b64,mime:blob.type});
+  }catch(e){}
+}
+const playBufWait=buf=>new Promise(res=>{const x=ac.createBufferSource();x.buffer=buf;x.connect(ac.destination);x.onended=res;x.start()});
+async function playB64(m){
+  if(!m)return;
+  if(!m.dec){try{const bin=atob(m.b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);m.dec=await ac.decodeAudioData(u.buffer)}catch(e){return}}
+  await playBufWait(m.dec);
+}
+async function playOriginal(){
+  const r=S.ref;
+  if(r.custom){const c=await loadFriend(S.token);if(c)await playBufWait(c.buf)}
+  else if(r.clip){const c=await loadClip(r.clip);if(c)await playBufWait(c.buf)}
+  else{playRef(r);await sleep(r.dur*1000+300)}
+}
+const comment=n=>n<20?'Aïe… on a déjà entendu mieux.':n<45?'Pas mal, pas mal.':n<70?'Joli !':n<90?'Impressionnant !':'Parfait, copie conforme !';
+async function reveal(){
+  const tok=S.token,rows=S.players.filter(p=>p.id!==S.performerId).sort((a,b)=>a.rs-b.rs);
+  const alive=()=>S&&S.phase==='results'&&S.token===tok;
+  $('revlabel').textContent='Manche '+S.round+' sur '+S.rounds;
+  $('revorb').style.background='';$('revorb').textContent='🎧';
+  $('revname').textContent="L'original";
+  $('revtxt').textContent='Rappel de la réplique'+(S.ref&&S.ref.titre?' : '+S.ref.titre:'');
+  await sleep(800);await playOriginal();await sleep(1200);
+  for(let i=0;i<rows.length;i++){
+    if(!alive())return false;
+    const p=rows[i];
+    $('revlabel').textContent='Imitation '+(i+1)+' sur '+rows.length;
+    $('revname').textContent=p.name;$('revorb').style.background='';$('revorb').textContent='🎧';$('revtxt').textContent='Écoute…';
+    for(let k=0;k<20&&!(imits[tok]&&imits[tok][p.id]);k++)await sleep(100);
+    await sleep(500);
+    await playB64(imits[tok]&&imits[tok][p.id]);
+    await sleep(900);
+    if(!alive())return false;
+    $('revorb').textContent='…';$('revtxt').textContent='La note est…';await sleep(1400);
+    if(!alive())return false;
+    $('revorb').textContent=p.rs;
+    $('revorb').style.background=p.rs<30?'var(--red)':p.rs<60?'var(--yel)':'var(--mint)';
+    $('revtxt').textContent=comment(p.rs);
+    await sleep(3500);
+  }
+  return alive();
+}
+
 /* ---------- Manche ---------- */
 async function playRound(st){
   $('ptitle').textContent='Écoute bien';$('orb').textContent='🔊';$('pstatus').textContent=st.ref.titre?'Réplique'+(st.ref.by?' de '+st.ref.by:'')+' : '+st.ref.titre:'';
@@ -463,15 +527,19 @@ async function playRound(st){
   for(let c=3;c>=1;c--){$('ptitle').textContent='Prépare-toi';$('orb').textContent=c;await sleep(600)}
   $('ptitle').textContent='À toi !';$('orb').textContent='🎤';
   const frames=[],buf=new Float32Array(analyser.fftSize),total=Math.round((dur+1.6)*1000/FR);
+  const rec=new MediaRecorder(stream,{audioBitsPerSecond:24000}),chunks=[];rec.ondataavailable=e=>chunks.push(e.data);
+  const stopped=new Promise(r=>rec.onstop=r);rec.start();
   await new Promise(res=>{const id=setInterval(()=>{
     analyser.getFloatTimeDomainData(buf);const r=detect(buf,ac.sampleRate);
     frames.push(r.f?midi(r.f):null);
     $('lvl').style.width=Math.min(100,r.rms*600)+'%';$('orb').style.transform='scale('+(1+Math.min(.35,r.rms*3))+')';
     if(frames.length>=total){clearInterval(id);res()}},FR)});
   $('orb').style.transform='';$('lvl').style.width='0';
+  rec.stop();await stopped;
   const sc=score(rf,frames);
   $('ptitle').textContent='Ton score : '+sc.total;$('orb').textContent=sc.total;
   $('pstatus').textContent='Hauteur '+sc.pitch+' % · Rythme '+sc.rhythm+' %. On attend les autres.';
+  await sendImit(st.token,new Blob(chunks,{type:rec.mimeType}));
   act('submit',{score:sc.total});
 }
 
@@ -480,10 +548,13 @@ const LABELS=['Score ×2','Bonus +30','Piège −30','Bonus +10','Poisse −30',
 LABELS.forEach((t,i)=>{const e=document.createElement('span');e.textContent=t;e.style.transform='rotate('+(i*60+30)+'deg) translateY(-95px)';$('wheel').appendChild(e)});
 async function showResults(){
   const w=S.wheel,rows=S.players.slice().sort((a,b)=>b.rs-a.rs);
-  $('wtitle').textContent=w.winner+' remporte la manche';
-  fillTable($('rtab'),rows.map(p=>[(p.id===S.performerId?'🎤 ':'')+p.name,p.rs]));
+  $('revealbox').style.display='';$('wheelstage').style.display='none';
   $('wres').textContent='';$('ttab').innerHTML='';$('next').style.display='none';$('wait2').textContent='';
   show('s-res');
+  if(!(await reveal()))return;
+  $('revealbox').style.display='none';$('wheelstage').style.display='';
+  $('wtitle').textContent=w.winner+' remporte la manche';
+  fillTable($('rtab'),rows.map(p=>[(p.id===S.performerId?'🎤 ':'')+p.name,p.rs]));
   const center=w.idx*60+30,target=((-center)%360+360)%360,cur=((rot%360)+360)%360;
   rot+=1800+(((target-cur)%360)+360)%360;
   await sleep(400);$('wheel').style.transform='rotate('+rot+'deg)';
