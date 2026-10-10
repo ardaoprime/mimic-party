@@ -18,6 +18,7 @@ button{font:inherit;font-weight:700;font-size:1.15rem;border:0;border-radius:14p
 button.alt{background:var(--ink2);color:var(--paper);border:2px solid var(--mint)}
 button:disabled{opacity:.4;cursor:default}
 button:focus-visible,input:focus-visible{outline:3px solid var(--yel);outline-offset:2px}
+select{font:inherit;font-size:1.1rem;padding:.7em;border-radius:12px;border:2px solid var(--ink2);background:var(--paper);color:var(--ink);width:100%;margin-top:8px}
 input{font:inherit;font-size:1.1rem;padding:.7em;border-radius:12px;border:2px solid var(--ink2);background:var(--paper);color:var(--ink);width:100%;margin-top:8px}
 .row{display:flex;gap:8px}.row>*{flex:1}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
@@ -57,12 +58,32 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
   <button id="copy" class="alt">Copier le lien d'invitation</button>
   <div class="chips" id="chips"></div>
   <div id="hostbox">
+    <label class="muted" for="mode">Mode de jeu</label>
+    <select id="mode">
+      <option value="ami">Répliques d'un ami (chacun son tour)</option>
+      <option value="melodie">Mélodies au hasard</option>
+      <option value="sons">Répliques du dépôt (sons.json)</option>
+    </select>
     <label class="muted" for="rounds">Manches : <b id="rv">5</b></label>
     <input id="rounds" type="range" min="3" max="10" value="5" style="padding:0">
     <button id="start">Lancer la partie</button>
   </div>
+  <p class="muted" id="modeinfo"></p>
   <p class="muted" id="clipinfo"></p>
   <p class="muted" id="waitHost"></p>
+</section>
+
+<section class="screen" id="s-perform" style="text-align:center">
+  <p class="muted" id="perlabel"></p>
+  <h2 id="pertitle"></h2>
+  <div id="perbox">
+    <p>Choisis une réplique ou un mème et dis-le avec ta voix (5 secondes max). Les autres devront t'imiter !</p>
+    <input id="mtitle" placeholder="Titre (ex : CB12)" maxlength="30" autocomplete="off">
+    <div class="orb" id="perorb" style="display:none"></div>
+    <button id="perrec">Enregistrer ma réplique</button>
+    <button id="perstop" class="alt" style="display:none">Terminer l'enregistrement</button>
+  </div>
+  <p class="muted" id="perwait"></p>
 </section>
 
 <section class="screen" id="s-play" style="text-align:center">
@@ -96,6 +117,7 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)};
+let perToken='',friendClips={},recNow=false;
 let chatStream=null,clips=[],peers=new Map(),userMuted=false;
 let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken='',resToken='',rot=0;
 
@@ -123,23 +145,43 @@ const SEG=[
  {t:'Poisse −30',f:(w)=>{w.score=Math.max(0,w.score-30);return w.name+' perd 30 points. Aïe.'}},
  {t:'Rien',f:()=>'Rien ne se passe. Suspense gâché.'}
 ];
-const pubR=()=>({room:R.code,phase:R.phase,hostId:R.hostId,round:R.round,rounds:R.rounds,token:R.token,ref:R.ref,wheel:R.wheel,
+const pubR=()=>({room:R.code,phase:R.phase,hostId:R.hostId,round:R.round,rounds:R.rounds,token:R.token,ref:R.ref,wheel:R.wheel,mode:R.mode,performerId:R.performerId,
   players:[...R.players.values()].map(p=>({id:p.id,name:p.name,score:p.score,rs:p.rs,done:p.done}))});
 function push(){S=pubR();send('state',S);render()}
 function startRound(){
-  R.round++;R.phase='listen';R.ref=pickRef();R.token=rid();R.wheel=null;
+  R.round++;R.token=rid();R.wheel=null;R.ref=null;
   R.players.forEach(p=>{p.done=false;p.rs=0});
-  clearTimeout(R.timer);R.timer=setTimeout(endRound,(R.ref.dur+14)*1000);
+  clearTimeout(R.timer);
+  if(R.mode==='ami'&&R.players.size>1){
+    const ids=[...R.players.keys()];R.performerId=ids[(R.round-1)%ids.length];R.phase='perform';
+    R.timer=setTimeout(()=>{if(R.phase==='perform'){R.performerId=null;beginListen(makeRef());push()}},45000);
+  }else{R.performerId=null;beginListen(R.mode==='sons'?pickRef():makeRef())}
+}
+function beginListen(ref){
+  R.ref=ref;R.phase='listen';
+  R.players.forEach(p=>{p.done=p.id===R.performerId;p.rs=0});
+  clearTimeout(R.timer);R.timer=setTimeout(endRound,(ref.dur+14)*1000);
+}
+function hostGotClip(m){
+  if(R.phase!=='perform'||m.id!==R.performerId)return;
+  friendClips[R.token]={b64:m.b64,mime:m.mime};
+  send('clip',{token:R.token,b64:m.b64,mime:m.mime});
+  beginListen({custom:true,titre:String(m.title||'Mystère').slice(0,30),dur:Math.min(6,Math.max(1,+m.dur||4)),by:R.players.get(R.performerId).name});
+  push();
 }
 function endRound(){
   if(R.phase!=='listen')return;clearTimeout(R.timer);
-  const ps=[...R.players.values()];ps.forEach(p=>{p.score+=p.rs});
-  const s=ps.slice().sort((a,b)=>b.rs-a.rs),w=s[0],l=s[s.length-1],idx=Math.floor(Math.random()*SEG.length);
+  const ps=[...R.players.values()],pl=ps.filter(p=>p.id!==R.performerId),gamers=pl.length?pl:ps;
+  gamers.forEach(p=>{p.score+=p.rs});
+  const per=R.players.get(R.performerId);
+  if(per&&pl.length){per.rs=Math.round(pl.reduce((a,p)=>a+p.rs,0)/pl.length/2);per.score+=per.rs}
+  const s=gamers.slice().sort((a,b)=>b.rs-a.rs),w=s[0],l=s[s.length-1],idx=Math.floor(Math.random()*SEG.length);
   R.wheel={idx,msg:SEG[idx].f(w,l),label:SEG[idx].t,winner:w.name};R.phase='results';push();
 }
 function hostAct(id,b){
   const p=R.players.get(id);if(!p)return;const host=R.hostId===id;
-  if(b.type==='rounds'&&host&&R.phase==='lobby')R.rounds=Math.max(1,Math.min(15,+b.v||5));
+  if(b.type==='mode'&&host&&R.phase==='lobby')R.mode=['ami','melodie','sons'].includes(b.v)?b.v:'ami';
+  else if(b.type==='rounds'&&host&&R.phase==='lobby')R.rounds=Math.max(1,Math.min(15,+b.v||5));
   else if(b.type==='start'&&host&&R.phase==='lobby'){R.round=0;R.players.forEach(x=>x.score=0);startRound()}
   else if(b.type==='submit'&&R.phase==='listen'&&!p.done){
     p.rs=Math.max(0,Math.min(100,Math.round(+b.score||0)));p.done=true;
@@ -160,6 +202,7 @@ function hostHello({id,name}){
 function hostLeave(key){
   if(!R.players.has(key)||key===R.hostId)return;
   R.players.delete(key);
+  if(R.phase==='perform'&&key===R.performerId){R.performerId=null;beginListen(makeRef());return push()}
   if(R.phase==='listen'&&[...R.players.values()].every(x=>x.done))return endRound();
   push();
 }
@@ -174,10 +217,12 @@ function connect(code,host,name){
   ch=sb.channel('mimic-'+code,{config:{broadcast:{self:false},presence:{key:me}}});
   ch.on('broadcast',{event:'state'},({payload})=>{S=payload;render()});
   ch.on('broadcast',{event:'rtc'},({payload})=>onRtc(payload));
+  ch.on('broadcast',{event:'clip'},({payload})=>{friendClips[payload.token]={b64:payload.b64,mime:payload.mime}});
   ch.on('broadcast',{event:'reject'},({payload})=>{if(payload.id===me)fail(payload.error)});
   if(host){
     ch.on('broadcast',{event:'act'},({payload})=>hostAct(payload.id,payload));
     ch.on('broadcast',{event:'hello'},({payload})=>hostHello(payload));
+    ch.on('broadcast',{event:'perform'},({payload})=>hostGotClip(payload));
   }
   ch.on('presence',{event:'leave'},({key})=>{
     if(host)hostLeave(key);
@@ -186,7 +231,7 @@ function connect(code,host,name){
   ch.subscribe(status=>{
     if(status==='SUBSCRIBED'){
       ch.track({name});
-      if(host){R={code,phase:'lobby',players:new Map(),hostId:me,round:0,rounds:5,token:'',ref:null,wheel:null,timer:null};
+      if(host){R={code,phase:'lobby',players:new Map(),hostId:me,round:0,rounds:5,token:'',ref:null,wheel:null,timer:null,mode:'ami',performerId:null};
         R.players.set(me,{id:me,name,score:0,rs:0,done:false});push()}
       else{send('hello',{id:me,name});setTimeout(()=>{if(!S&&ch)fail("Cette salle n'existe pas, ou son hôte n'est plus là.")},4000)}
     }else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')fail('Connexion au serveur impossible. Réessaie.');
@@ -231,13 +276,21 @@ function render(){
     $('hostbox').style.display=isHost()?'':'none';
     $('rv').textContent=S.rounds;if(isHost()&&document.activeElement!==$('rounds'))$('rounds').value=S.rounds;
     $('waitHost').textContent=isHost()?'Tu es l\'hôte : lance la partie quand tout le monde est là.':"L'hôte (contour jaune) va lancer la partie.";
-    lastToken='';resToken='';
+    lastToken='';resToken='';perToken='';
+    $('mode').value=S.mode||'ami';
+    $('modeinfo').textContent=isHost()?'':'Mode : '+({ami:"Répliques d'un ami",melodie:'Mélodies',sons:'Répliques du dépôt'}[S.mode]||'');
     show('s-lobby');
+  }else if(S.phase==='perform'){
+    const mineP=S.performerId===me;
+    if(S.token!==perToken){perToken=S.token;resetPerform(mineP)}
+    show('s-perform');
   }else if(S.phase==='listen'){
     $('plabel').textContent='Manche '+S.round+' sur '+S.rounds;
-    if(S.token!==lastToken){lastToken=S.token;show('s-play');playRound(S)}
+    if(S.token!==lastToken){lastToken=S.token;show('s-play');
+      if(S.performerId===me){$('ptitle').textContent='Ta réplique est jouée !';$('orb').textContent='🎭';$('pstatus').textContent="Les autres essaient de t'imiter. Silence !"}
+      else playRound(S)}
     const mine=S.players.find(p=>p.id===me);
-    if(mine&&mine.done){const n=S.players.filter(p=>p.done).length;$('pstatus').textContent='Ton score est envoyé. '+n+' sur '+S.players.length+' ont terminé.'}
+    if(mine&&mine.done&&S.performerId!==me){const n=S.players.filter(p=>p.done&&p.id!==S.performerId).length;$('pstatus').textContent='Ton score est envoyé. '+n+' sur '+(S.players.length-(S.performerId?1:0))+' ont terminé.'}
   }else if(S.phase==='results'){
     if(S.token!==resToken){resToken=S.token;showResults()}
   }else if(S.phase==='end'){
@@ -291,18 +344,26 @@ function score(refF,pl){
 
 /* ---------- Répliques cultes (sons.json + fichiers audio du dépôt) ---------- */
 fetch('sons.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).then(a=>{clips=Array.isArray(a)?a.filter(c=>c&&c.fichier):[];updClip()}).catch(()=>updClip());
-function updClip(){$('clipinfo').textContent=clips.length?(clips.length+' répliques cultes chargées.'):'Aucune réplique trouvée (sons.json) : mode mélodies.'}
+function updClip(){$('mode').querySelector('option[value=sons]').disabled=!clips.length;$('clipinfo').textContent=clips.length?(clips.length+' répliques cultes chargées.'):'Aucune réplique trouvée (sons.json) : mode mélodies.'}
 const clipCache={};
 async function loadClip(url){
   if(clipCache[url])return clipCache[url];
   try{
     const r=await fetch(url);if(!r.ok)return null;
-    const buf=await ac.decodeAudioData(await r.arrayBuffer());
-    const d=buf.getChannelData(0),sr=buf.sampleRate;let pk=0;for(let i=0;i<d.length;i++)pk=Math.max(pk,Math.abs(d[i]));
-    const g=pk?1/pk:1,hop=Math.round(sr*FR/1000),win=new Float32Array(2048),frames=[];
-    for(let s=0;s+2048<=d.length;s+=hop){for(let i=0;i<2048;i++)win[i]=d[s+i]*g;const x=detect(win,sr);frames.push(x.f?midi(x.f):null)}
-    return clipCache[url]={buf,frames};
+    return clipCache[url]=analyse(await ac.decodeAudioData(await r.arrayBuffer()));
   }catch(e){return null}
+}
+function analyse(buf){
+  const d=buf.getChannelData(0),sr=buf.sampleRate;let pk=0;for(let i=0;i<d.length;i++)pk=Math.max(pk,Math.abs(d[i]));
+  const g=pk?1/pk:1,hop=Math.round(sr*FR/1000),win=new Float32Array(2048),frames=[];
+  for(let s=0;s+2048<=d.length;s+=hop){for(let i=0;i<2048;i++)win[i]=d[s+i]*g;const x=detect(win,sr);frames.push(x.f?midi(x.f):null)}
+  return{buf,frames};
+}
+async function loadFriend(token){
+  for(let i=0;i<60&&!friendClips[token];i++)await sleep(100);
+  const m=friendClips[token];if(!m)return null;if(m.dec)return m.dec;
+  try{const bin=atob(m.b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    return m.dec=analyse(await ac.decodeAudioData(u.buffer))}catch(e){return null}
 }
 function playBuf(buf){const s=ac.createBufferSource();s.buffer=buf;s.connect(ac.destination);s.start()}
 function pickRef(){
@@ -322,7 +383,7 @@ const gathered=pc=>new Promise(res=>{
   const t=setTimeout(res,2500);
   pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(t);res()}});
 });
-const chatOn=()=>!userMuted&&S&&S.phase!=='listen';
+const chatOn=()=>!userMuted&&S&&S.phase!=='listen'&&!recNow;
 function getPeer(id){
   let p=peers.get(id);if(p)return p;
   const pc=new RTCPeerConnection(ICE),audio=new Audio();audio.autoplay=true;
@@ -355,12 +416,45 @@ function syncPeers(){
 }
 $('mutebtn').onclick=()=>{userMuted=!userMuted;syncPeers()};
 
+/* ---------- Réplique d'un ami ---------- */
+$('mode').onchange=e=>act('mode',{v:e.target.value});
+function resetPerform(mineP){
+  const pf=S.players.find(p=>p.id===S.performerId);
+  $('perlabel').textContent='Manche '+S.round+' sur '+S.rounds;
+  $('perbox').style.display=mineP?'':'none';
+  $('pertitle').textContent=mineP?'À toi de jouer !':(pf?pf.name:'Un joueur')+' prépare sa réplique…';
+  $('perwait').textContent=mineP?'':"Discutez en attendant : vous allez devoir l'imiter !";
+  $('perrec').style.display='';$('perstop').style.display='none';$('perorb').style.display='none';$('mtitle').value='';$('mtitle').disabled=false;
+}
+$('perrec').onclick=async()=>{
+  $('perrec').style.display='none';$('mtitle').disabled=true;$('perorb').style.display='';
+  recNow=true;syncPeers();
+  for(let c=3;c>=1;c--){$('perorb').textContent=c;await sleep(700)}
+  $('perorb').textContent='🎤';$('perstop').style.display='';
+  const rec=new MediaRecorder(stream,{audioBitsPerSecond:32000}),chunks=[],t0=performance.now();
+  rec.ondataavailable=e=>chunks.push(e.data);
+  const done=new Promise(r=>rec.onstop=r);rec.start();
+  const tm=setTimeout(()=>{if(rec.state==='recording')rec.stop()},5000);
+  $('perstop').onclick=()=>{if(rec.state==='recording')rec.stop()};
+  await done;clearTimeout(tm);
+  const dur=(performance.now()-t0)/1000;recNow=false;syncPeers();
+  const blob=new Blob(chunks,{type:rec.mimeType});
+  const b64=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(',')[1]);f.readAsDataURL(blob)});
+  const m={id:me,title:$('mtitle').value.trim()||'Mystère',b64,mime:rec.mimeType,dur};
+  $('perbox').style.display='none';$('pertitle').textContent="Envoyé ! Prépare-toi à écouter les autres t'imiter.";
+  if(amHost)hostGotClip(m);else send('perform',m);
+};
+
 /* ---------- Manche ---------- */
 async function playRound(st){
-  $('ptitle').textContent='Écoute bien';$('orb').textContent='🔊';$('pstatus').textContent=st.ref.titre?'Réplique : '+st.ref.titre:'';
+  $('ptitle').textContent='Écoute bien';$('orb').textContent='🔊';$('pstatus').textContent=st.ref.titre?'Réplique'+(st.ref.by?' de '+st.ref.by:'')+' : '+st.ref.titre:'';
   await ac.resume();
   let dur=st.ref.dur,rf;
-  if(st.ref.clip){
+  if(st.ref.custom){
+    const c=await loadFriend(st.token);
+    if(!c){$('ptitle').textContent='Réplique introuvable';act('submit',{score:0});return}
+    dur=c.buf.duration;rf=c.frames;playBuf(c.buf);
+  }else if(st.ref.clip){
     const c=await loadClip(st.ref.clip);
     if(!c){$('ptitle').textContent='Son introuvable';$('pstatus').textContent=st.ref.clip;act('submit',{score:0});return}
     dur=c.buf.duration;rf=c.frames;playBuf(c.buf);
@@ -387,7 +481,7 @@ LABELS.forEach((t,i)=>{const e=document.createElement('span');e.textContent=t;e.
 async function showResults(){
   const w=S.wheel,rows=S.players.slice().sort((a,b)=>b.rs-a.rs);
   $('wtitle').textContent=w.winner+' remporte la manche';
-  fillTable($('rtab'),rows.map(p=>[p.name,p.rs]));
+  fillTable($('rtab'),rows.map(p=>[(p.id===S.performerId?'🎤 ':'')+p.name,p.rs]));
   $('wres').textContent='';$('ttab').innerHTML='';$('next').style.display='none';$('wait2').textContent='';
   show('s-res');
   const center=w.idx*60+30,target=((-center)%360+360)%360,cur=((rot%360)+360)%360;
