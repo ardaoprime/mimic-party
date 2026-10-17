@@ -179,14 +179,35 @@ button{touch-action:manipulation}
 
 <section class="screen on" id="s-join" style="text-align:center">
   <h1>Imite-moi<br>si tu peux</h1>
-  <p class="muted" style="font-size:.8rem;margin-top:0">Version 14</p>
+  <p class="muted" style="font-size:.8rem;margin-top:0">Version 15</p>
   <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0">
     <span id="homeav" class="ava md f-none" style="margin:0;width:56px;height:56px;font-size:1.7rem"></span>
     <div style="text-align:left"><b id="homename"></b><br><small class="muted" id="prof"></small></div>
   </div>
+  <button id="goacc" class="alt" style="width:auto;padding:.4em .9em;font-size:.95rem;margin:0 0 4px"></button>
   <button id="goplay" class="big">🎤 Jouer</button>
   <button id="gopass" class="alt big">⭐ Passe de combat<span id="pdot" class="dot red" style="display:none"></span></button>
   <button id="gofr" class="alt big">👥 Amis<span id="dot" class="dot" style="display:none"></span></button>
+</section>
+
+<section class="screen" id="s-account">
+  <button class="alt backj topback">← Retour</button>
+  <h2>👤 Mon compte</h2>
+  <div id="accin">
+    <p class="muted">Crée un compte avec un pseudo et un mot de passe, sans email. Ta progression (niveau, pièces, objets, amis) est sauvegardée en ligne : tu la retrouves sur n'importe quel appareil.</p>
+    <div class="card">
+      <input id="apseudo" placeholder="Pseudo (3 à 14 caractères)" maxlength="14" autocomplete="username" autocapitalize="off" style="margin-top:0">
+      <input id="apass" type="password" placeholder="Mot de passe (6 caractères minimum)" autocomplete="current-password">
+      <button id="asign">Créer mon compte</button>
+      <button id="alog" class="alt">Me connecter</button>
+      <p class="err" id="aerr"></p>
+    </div>
+    <p class="muted" style="font-size:.9rem">Sans email, il n'y a pas de « mot de passe oublié » : note bien ton mot de passe. Tu peux aussi continuer en invité : ta progression reste alors sur cet appareil.</p>
+  </div>
+  <div id="accout" style="display:none">
+    <div class="card" style="text-align:center"><b id="accname" style="font-size:1.4rem"></b><p class="muted">✔ Connecté. Ta progression est sauvegardée en ligne.</p></div>
+    <button id="alogout" class="alt">Se déconnecter</button>
+  </div>
 </section>
 
 <section class="screen" id="s-menu">
@@ -337,6 +358,7 @@ button{touch-action:manipulation}
   <div id="pcards"></div>
   <p class="muted">Ajoute des amis avec ➕ :</p>
   <div class="chips" id="endchips"></div>
+  <div id="savecard" class="card" style="display:none;text-align:center"><b>💾 Sauvegarde ta progression</b><p class="muted">Crée un compte avec un pseudo et un mot de passe (pas d'email) pour garder ton niveau, tes pièces et tes objets.</p><button id="savebtn">Créer mon compte</button></div>
   <button id="shareres" class="alt">📤 Partager mon score</button>
   <button id="again" style="display:none">Rejouer dans la même salle</button>
   <p class="muted" id="wait3"></p>
@@ -372,7 +394,7 @@ let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken
 /* ---------- Réseau (Supabase Realtime, sans serveur à toi) ---------- */
 const SB_URL='https://hyhkemsvxulgdymoznwt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5aGtlbXN2eHVsZ2R5bW96bnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MDkyMTIsImV4cCI6MjEwNzE4NTIxMn0.pdwyE5EoNuXKFwyR9saBOKxbEZQBFlVnROOBOxbroGI';
-const VERSION='14';
+const VERSION='15';
 function recOpts(bps){
   const t=['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus','audio/webm'].find(x=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(x));
   return t?{mimeType:t,audioBitsPerSecond:bps}:{audioBitsPerSecond:bps};
@@ -597,7 +619,7 @@ function render(){
     const o=S.players.slice().sort((a,b)=>b.score-a.score);
     $('again').style.display=isHost()?'':'none';
     $('wait3').textContent=isHost()?'':"L'hôte peut relancer une partie.";
-    awardOnce();buildChips('endchips');renderEnd(o);
+    awardOnce();updAccount();buildChips('endchips');renderEnd(o);
     show('s-end');
   }
 }
@@ -838,13 +860,15 @@ const ALL_RX=[...BASE_RX,'🤯','🥳','😭','🫡','🤌'];
 const REW={2:'ti:rookie',4:'rx:🤯',5:'fr:glace',7:'av:chef',8:'ti:fou',10:'av:ninja',11:'rx:🥳',13:'fr:electrique',14:'ti:oreille',15:'av:viking',17:'rx:😭',18:'fr:galaxie',20:'av:astro',21:'ti:star',23:'rx:🫡',24:'fr:royal',25:'av:pharaon',27:'ti:legende',28:'rx:🤌',30:'av:dieu'};
 const PASS=Array.from({length:30},(_,i)=>REW[i+1]?{l:i+1,item:REW[i+1]}:{l:i+1,c:30+Math.floor(i/3)*10});
 const rid2=()=>Math.random().toString(36).slice(2,10);
+let user=null,syncT=null;
 let P=(()=>{try{const x=JSON.parse(localStorage.getItem('imite.p')||'null');if(x&&x.pid)return x}catch(e){}return null})()
   ||{pid:rid2()+rid2(),name:'',xp:0,coins:0,owned:[],av:BASE_AV[Math.floor(Math.random()*BASE_AV.length)],frame:'none',claimed:[],daily:'',friends:{}};
 P.owned=P.owned||[];P.claimed=P.claimed||[];P.friends=P.friends||{};P.frame=P.frame||'none';
 P.owned=P.owned.filter(k=>ITEMS.some(i=>i.k===k)||/^(ti|rx):/.test(k));if(!AV[P.av])P.av='mimi';
 P.title=P.title||'none';P.streak=P.streak||0;P.lastDay=P.lastDay||'';if(!FR_IDS.includes(P.frame))P.frame='none';
 let prevSel={t:'av',id:P.av};
-const saveP=()=>{try{localStorage.setItem('imite.p',JSON.stringify(P))}catch(e){}};
+const saveLocal=()=>{try{localStorage.setItem('imite.p',JSON.stringify(P))}catch(e){}};
+const saveP=()=>{saveLocal();queueSync()};
 const owns=k=>{const t=k.slice(0,2),id=k.slice(3);
   if(k==='fr:none'||k==='ti:none')return true;
   if(t==='av')return BASE_AV.includes(id)||P.owned.includes(k);
@@ -1103,6 +1127,90 @@ function renderEnd(o){
   });
 }
 
+/* Compte : pseudo + mot de passe, sans email */
+const normPseudo=t=>t.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_-]/g,'');
+const emailOf=t=>normPseudo(t)+'@imitemoi.app';
+const frErr=m=>{m=String(m||'');
+  if(/already registered|already been registered/i.test(m))return 'Ce pseudo est déjà pris.';
+  if(/invalid login/i.test(m))return 'Pseudo ou mot de passe incorrect.';
+  if(/at least|weak|short/i.test(m))return 'Mot de passe trop court (6 caractères minimum).';
+  if(/not confirmed/i.test(m))return "Le serveur demande encore une confirmation par email : l'administrateur doit la désactiver.";
+  if(/rate limit|too many/i.test(m))return "Trop d'essais, réessaie dans une minute.";
+  return 'Connexion impossible. Réessaie.';
+};
+const PKEYS=['pid','name','xp','coins','owned','av','frame','title','claimed','daily','streak','lastDay','friends'];
+const snapshot=()=>{const d={};PKEYS.forEach(k=>{d[k]=P[k]});return d};
+function fixP(){
+  P.owned=(P.owned||[]).filter(k=>ITEMS.some(i=>i.k===k)||/^(ti|rx):/.test(k));
+  P.claimed=P.claimed||[];P.friends=P.friends||{};
+  if(!AV[P.av])P.av='mimi';if(!FR_IDS.includes(P.frame))P.frame='none';
+  P.title=P.title||'none';P.streak=P.streak||0;P.lastDay=P.lastDay||'';
+  P.xp=Math.max(0,+P.xp||0);P.coins=Math.max(0,+P.coins||0);if(!P.pid)P.pid=rid2()+rid2();
+}
+function applyData(d){PKEYS.forEach(k=>{if(d[k]!==undefined)P[k]=d[k]});fixP()}
+function queueSync(){if(!user)return;clearTimeout(syncT);syncT=setTimeout(syncUp,1500)}
+async function syncUp(){if(!user)return;try{await sb.from('profiles').update({data:snapshot(),updated_at:new Date().toISOString()}).eq('id',user.id)}catch(e){}}
+async function loadProfile(){
+  const r=await sb.from('profiles').select('pseudo,data').eq('id',user.id).maybeSingle();
+  if(r.error)return;
+  if(r.data){applyData(r.data.data||{});P.name=r.data.pseudo;saveLocal()}
+  else await sb.from('profiles').insert({id:user.id,pseudo:(user.user_metadata&&user.user_metadata.pseudo)||P.name||'Joueur',data:snapshot()});
+}
+function restartGlobal(){try{if(gch)sb.removeChannel(gch)}catch(e){}gch=null;online={};startGlobal()}
+function updAccount(){
+  $('goacc').textContent=user?'👤 '+(P.name||'Mon compte'):'👤 Connexion / Inscription';
+  $('accout').style.display=user?'':'none';$('accin').style.display=user?'none':'';
+  $('accname').textContent=user?(P.name||''):'';
+  $('savecard').style.display=(!user&&S&&S.phase==='end')?'':'none';
+  $('name').readOnly=!!user;
+}
+function afterLogin(){
+  saveLocal();fixP();buildPick();refreshHome();buildFriendsList();updAccount();$('name').value=P.name||'';
+  restartGlobal();
+  if(room&&S)render();else show('s-join');
+}
+async function authSubmit(mode){
+  const pseudo=$('apseudo').value.trim(),pw=$('apass').value;$('aerr').textContent='';
+  if(!/^[A-Za-zÀ-ÿ0-9_-]{3,14}$/.test(pseudo)||normPseudo(pseudo).length<3){$('aerr').textContent='Pseudo : 3 à 14 caractères (lettres, chiffres, - ou _).';return}
+  if(pw.length<6){$('aerr').textContent='Mot de passe : 6 caractères minimum.';return}
+  $('asign').disabled=true;$('alog').disabled=true;
+  try{
+    if(mode==='up'){
+      const r=await sb.auth.signUp({email:emailOf(pseudo),password:pw,options:{data:{pseudo}}});
+      if(r.error)throw r.error;
+      if(!r.data.session){$('aerr').textContent='Compte créé, mais le serveur demande une confirmation par email. Désactive « Confirm email » dans les réglages Supabase.';return}
+      user=r.data.user;P.name=pseudo;
+      const ins=await sb.from('profiles').insert({id:user.id,pseudo,data:snapshot()});
+      if(ins.error){await sb.auth.signOut();user=null;throw ins.error}
+      afterLogin();
+    }else{
+      const r=await sb.auth.signInWithPassword({email:emailOf(pseudo),password:pw});
+      if(r.error)throw r.error;
+      user=r.data.user;await loadProfile();afterLogin();
+    }
+  }catch(e){$('aerr').textContent=(e&&e.code==='23505')?'Ce pseudo est déjà pris.':frErr(e&&e.message)}
+  finally{$('asign').disabled=false;$('alog').disabled=false}
+}
+async function doLogout(){
+  await syncUp();try{await sb.auth.signOut()}catch(e){}
+  try{localStorage.removeItem('imite.p')}catch(e){}
+  location.href=location.pathname+'?v='+VERSION;
+}
+function initAuth(){
+  updAccount();
+  sb.auth.getSession().then(async({data})=>{
+    if(data&&data.session){
+      user=data.session.user;const old=P.pid;await loadProfile();
+      buildPick();refreshHome();$('name').value=P.name||'';updAccount();if(P.pid!==old)restartGlobal();
+    }
+  }).catch(()=>{});
+}
+$('asign').onclick=()=>authSubmit('up');$('alog').onclick=()=>authSubmit('in');
+$('apass').onkeydown=e=>{if(e.key==='Enter')authSubmit('in')};
+$('alogout').onclick=doLogout;
+$('goacc').onclick=()=>{updAccount();show('s-account')};
+$('savebtn').onclick=()=>{updAccount();show('s-account')};
+
 /* Récompenses de fin de partie */
 let awardedTok='';
 function awardOnce(){
@@ -1116,7 +1224,7 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
   const g=b.dataset.go;if(g==='s-shop')renderShop();if(g==='s-rew')buildPick();if(g==='s-join'){refreshHome();buildFriendsList()}
   show(g);
 });
-document.querySelectorAll('.backj').forEach(b=>b.onclick=()=>{refreshHome();buildFriendsList();show('s-join')});
+document.querySelectorAll('.backj').forEach(b=>b.onclick=()=>{if(room&&S){render();return}refreshHome();buildFriendsList();show('s-join')});
 const openPass=()=>{renderPass();show('s-pass')};
 $('quick').onclick=quickPlay;
 $('goplay').onclick=()=>{$('name').value=P.name||'';$('err').textContent='';show('s-menu')};
@@ -1134,6 +1242,7 @@ $('quit').onclick=()=>{location.href=location.pathname+'?v='+VERSION};
 document.addEventListener('pointerdown',()=>{if(ac&&ac.state==='suspended')ac.resume();peers.forEach(p=>{if(p.audio.srcObject&&p.audio.paused)p.audio.play().catch(()=>{})})},{passive:true});
 (function(){const e=$('eq');for(let i=0;i<46;i++){const b=document.createElement('i');b.style.height=(25+Math.random()*75)+'%';b.style.animationDuration=(.7+Math.random()*1)+'s';b.style.animationDelay=(-Math.random()*1.5)+'s';e.appendChild(b)}})();
 $('name').value=P.name||'';buildPick();buildFriendsList();startGlobal();show('s-join');
+initAuth();
 
 /* ---------- Avatars, idées, réactions ---------- */
 
