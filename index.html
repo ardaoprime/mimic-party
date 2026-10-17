@@ -45,6 +45,14 @@ table{background:#ffffff0d;border-radius:12px;overflow:hidden}
 .f-arc{border-color:transparent;background:linear-gradient(#2c2062,#2c2062) padding-box,conic-gradient(#ff4d4d,#ffe14d,#5fe3c0,#4da6ff,#c04dff,#ff4d4d) border-box}
 @keyframes bn{0%{transform:scale(.5)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
 .bounce{animation:bn .5s}
+.dot{display:inline-block;width:.65em;height:.65em;border-radius:50%;background:#3b9cff;box-shadow:0 0 7px #3b9cff;margin-left:8px;vertical-align:middle}
+.dot.red{background:#ff5a4e;box-shadow:0 0 7px #ff5a4e}
+button.big{font-size:1.4rem;padding:1em;margin-top:14px}
+.tab{flex:1;margin:0;border-radius:0;background:transparent;box-shadow:none;font-size:1.5rem;padding:.5em 0 .4em;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--paper);opacity:.6}
+.tab small{font-size:.7rem;font-weight:700}
+.tab.on{opacity:1;color:var(--yel)}
+button.av.lock{opacity:.35}
+#passcard{cursor:pointer}
 .xp{height:16px;border-radius:9px;background:var(--ink2);overflow:hidden;margin:8px 0}.xp i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--yel));width:0}
 select{font:inherit;font-size:1.1rem;padding:.7em;border-radius:12px;border:2px solid var(--ink2);background:var(--paper);color:var(--ink);width:100%;margin-top:8px}
 button.av{width:auto;margin:0;padding:.25em .45em;font-size:1.6rem;background:var(--ink2);border-radius:12px;border:2px solid transparent}
@@ -73,29 +81,48 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 <body>
 <main>
 
-<section class="screen on" id="s-join">
+<section class="screen on" id="s-join" style="text-align:center">
   <h1>Imite-moi<br>si tu peux</h1>
-  <p class="muted">Un son, tout le monde l'imite avec la voix en même temps, chacun depuis chez soi. Hauteur et rythme sont notés. Vous pouvez discuter à voix haute entre les manches.</p>
-  <p class="muted" style="font-size:.8rem">Version 7</p>
+  <p class="muted" style="font-size:.8rem;margin-top:0">Version 9</p>
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0">
+    <span id="homeav" class="ava md f-none" style="margin:0;width:56px;height:56px;font-size:1.7rem"></span>
+    <div style="text-align:left"><b id="homename"></b><br><small class="muted" id="prof"></small></div>
+  </div>
+  <button id="goplay" class="big">🎤 Jouer</button>
+  <button id="gopass" class="alt big">⭐ Passe de combat<span id="pdot" class="dot red" style="display:none"></span></button>
+  <button id="gofr" class="alt big">👥 Amis<span id="dot" class="dot" style="display:none"></span></button>
+</section>
+
+<section class="screen" id="s-menu">
+  <button class="alt backj" style="width:auto;margin:0 0 10px;padding:.4em .9em;font-size:1rem">← Retour</button>
+  <h2>🎤 Jouer</h2>
   <div class="card">
     <input id="name" placeholder="Ton prénom" maxlength="14" autocomplete="off" style="margin-top:0">
-    <p class="muted" style="margin:10px 0 2px">Ton avatar</p>
-    <div class="chips" id="avs" style="margin-top:4px"></div>
-    <p class="muted" style="margin:6px 0 2px">Ton cadre</p>
-    <div class="chips" id="frs" style="margin-top:4px"></div>
-    <p class="muted" id="prof" style="margin:6px 0 0"></p>
-  </div>
-  <input id="code" placeholder="Code de la salle (pour rejoindre)" maxlength="4" autocomplete="off" style="text-transform:uppercase">
-  <button id="create">Créer une salle</button>
-  <button id="join" class="alt">Rejoindre avec le code</button>
-  <p class="err" id="err"></p>
-  <p class="muted" id="onl"></p>
-  <div class="row" style="margin-top:8px">
-    <button class="alt" data-go="s-pass" style="padding:.7em .3em;font-size:1rem">⭐ Passe</button>
-    <button class="alt" data-go="s-shop" style="padding:.7em .3em;font-size:1rem">🎁 Boutique</button>
-    <button class="alt" data-go="s-friends" style="padding:.7em .3em;font-size:1rem">👥 Amis</button>
+    <input id="code" placeholder="Code de la salle (pour rejoindre)" maxlength="4" autocomplete="off" style="text-transform:uppercase">
+    <button id="create">Créer une salle</button>
+    <button id="join" class="alt">Rejoindre avec le code</button>
+    <p class="err" id="err"></p>
   </div>
   <p class="muted" style="font-size:.9rem">Autorise le micro quand le navigateur le demande. Un casque évite que ton micro capte le son du jeu.</p>
+</section>
+
+<section class="screen" id="s-friends">
+  <button class="alt backj" style="width:auto;margin:0 0 10px;padding:.4em .9em;font-size:1rem">← Retour</button>
+  <h2>👥 Amis</h2>
+  <p class="muted">Un point bleu veut dire que l'ami est en ligne : tu peux l'inviter. Pour ajouter un ami, utilise le bouton ➕ à côté de son nom pendant ou après une partie.</p>
+  <p class="err" id="ferr"></p>
+  <div id="flist"></div>
+</section>
+
+<section class="screen" id="s-rew">
+  <h2>⭐ Mes récompenses</h2>
+  <p class="muted">Choisis l'avatar et le cadre que tu portes en jeu. Les objets grisés se débloquent dans la boutique ou dans le passe de combat.</p>
+  <div class="card" style="text-align:center"><div id="rewprev" class="ava lg f-none"></div></div>
+  <p class="muted" style="margin:6px 0 2px">Avatars</p>
+  <div class="chips" id="avs" style="margin-top:4px"></div>
+  <p class="muted" style="margin:6px 0 2px">Cadres</p>
+  <div class="chips" id="frs" style="margin-top:4px"></div>
+  <button id="topass" class="alt">⭐ Voir le passe de combat</button>
 </section>
 
 <section class="screen" id="s-pass">
@@ -113,15 +140,9 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
   <div class="card"><b>Cadeau du jour</b><p id="dailytxt" class="muted"></p><button id="dailybtn">Récupérer gratuitement</button></div>
   <div id="shoplist"></div>
   <div class="card"><b>Premium (argent réel)</b><p class="muted">Packs de pièces et Passe de combat Premium : bientôt disponibles avec les applications. Les paiements demandent un compte vendeur, je ne les ai pas branchés pour l'instant.</p></div>
-  <button class="alt backj">Retour</button>
 </section>
 
-<section class="screen" id="s-friends">
-  <h2>👥 Amis</h2>
-  <p class="muted">Ajoute des amis avec le bouton ➕ à côté de leur nom, pendant ou après une partie. Tu vois ici s'ils sont en ligne.</p>
-  <div id="flist"></div>
-  <button class="alt backj">Retour</button>
-</section>
+
 
 <section class="screen" id="s-lobby">
   <p class="muted">Code de la salle</p>
@@ -213,6 +234,11 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 </section>
 
 </main>
+<nav id="tabs" style="position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;background:#150e33;border-top:1px solid #ffffff22;padding-bottom:env(safe-area-inset-bottom,0)">
+  <button class="tab" data-go="s-shop"><span>🎁</span><small>Boutique</small></button>
+  <button class="tab on" data-go="s-join"><span>🏠</span><small>Accueil</small></button>
+  <button class="tab" data-go="s-rew"><span>⭐</span><small>Récompenses</small></button>
+</nav>
 <div id="note" style="display:none;position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top,0px));z-index:10;background:var(--paper);color:var(--ink);padding:.8em 1em;border-radius:14px;box-shadow:0 8px 24px #0008;font-weight:700">
   <span id="notetxt"></span><br>
   <button id="noteok" style="width:auto;margin:6px 6px 0 0;padding:.4em .9em;font-size:1rem"></button><button id="noteno" class="alt" style="width:auto;margin:6px 0 0;padding:.4em .9em;font-size:1rem;color:var(--ink)">Fermer</button>
@@ -222,7 +248,12 @@ background:conic-gradient(var(--red) 0 60deg,var(--ink2) 60deg 120deg,var(--mint
 <script>
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)};
+const TABSCR=['s-join','s-shop','s-rew'];
+const show=id=>{
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0);
+  const t=document.getElementById('tabs');if(t){t.style.display=TABSCR.includes(id)?'flex':'none';
+    document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.go===(id==='s-pass'?'s-rew':id)))}
+};
 let imits={},seq=false;
 let perToken='',friendClips={},recNow=false;
 let chatStream=null,clips=[],peers=new Map(),userMuted=false;
@@ -231,7 +262,7 @@ let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken
 /* ---------- Réseau (Supabase Realtime, sans serveur à toi) ---------- */
 const SB_URL='https://hyhkemsvxulgdymoznwt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5aGtlbXN2eHVsZ2R5bW96bnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MDkyMTIsImV4cCI6MjEwNzE4NTIxMn0.pdwyE5EoNuXKFwyR9saBOKxbEZQBFlVnROOBOxbroGI';
-const VERSION='7';
+const VERSION='9';
 function recOpts(bps){
   const t=['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus','audio/webm'].find(x=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(x));
   return t?{mimeType:t,audioBitsPerSecond:bps}:{audioBitsPerSecond:bps};
@@ -334,7 +365,7 @@ const act=(type,extra)=>{if(amHost)hostAct(me,{type,...extra});else send('act',{
 
 function fail(msg){
   if(ch){sb.removeChannel(ch);ch=null}S=null;amHost=false;
-  $('err').textContent=msg;show('s-join');
+  $('err').textContent=msg;room=null;show('s-menu');
 }
 function connect(code,host,name){
   room=code;amHost=host;
@@ -359,7 +390,8 @@ function connect(code,host,name){
     if(status==='SUBSCRIBED'){
       ch.track({name});
       if(host){R={code,phase:'lobby',players:new Map(),hostId:me,round:0,rounds:5,token:'',ref:null,wheel:null,timer:null,mode:'ami',performerId:null,theme:'libre',hist:[],bon:{},awards:null};
-        R.players.set(me,{id:me,name,av:P.av,fr:P.frame,pid:P.pid,score:0,rs:0,done:false});push()}
+        R.players.set(me,{id:me,name,av:P.av,fr:P.frame,pid:P.pid,score:0,rs:0,done:false});push();
+        pendingInv.forEach(pid=>{if(gch)gch.send({type:'broadcast',event:'invite',payload:{to:pid,fromName:P.name||'Un ami',room:code}})});pendingInv=[]}
       else{send('hello',{id:me,name,av:P.av,fr:P.frame,pid:P.pid});setTimeout(()=>{if(!S&&ch)fail("Cette salle n'existe pas, ou son hôte n'est plus là.")},4000)}
     }else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')fail('Connexion au serveur impossible. Réessaie.');
   });
@@ -585,21 +617,33 @@ function mkAva(av,fr,sz){const e=document.createElement('span');setAva(e,av,fr,s
 const smallBtn='width:auto;margin:0;padding:.4em .8em;font-size:1rem';
 const mkRow=()=>{const r=document.createElement('div');r.className='card row';r.style.alignItems='center';return r};
 
+function refreshHome(){
+  setAva($('homeav'),P.av,P.frame,'md');
+  $('homeav').style.cssText='margin:0;width:56px;height:56px;font-size:1.7rem';
+  $('homename').textContent=P.name||'Joueur';
+  $('prof').textContent='Niveau '+lvl()+' · 🪙 '+P.coins;
+  const L=Math.floor(P.xp/XPL)+1;
+  $('pdot').style.display=PASS.some(r=>L>=r.l&&!P.claimed.includes(r.l))?'inline-block':'none';
+}
 function buildPick(){
   const a=$('avs');a.innerHTML='';
-  [...BASE_AV.map(x=>'av:'+x),...P.owned.filter(k=>k.startsWith('av:'))].forEach(k=>{
-    const e=k.slice(3),b=document.createElement('button');b.type='button';b.className='av'+(e===P.av?' sel':'');
-    b.textContent=e;b.setAttribute('aria-label','Avatar '+e);b.onclick=()=>{P.av=e;saveP();buildPick()};a.appendChild(b);
+  [...BASE_AV.map(x=>'av:'+x),...ITEMS.filter(i=>i.k.startsWith('av:')).map(i=>i.k)].forEach(k=>{
+    const e=k.slice(3),has=owns(k),b=document.createElement('button');b.type='button';
+    b.className='av'+(e===P.av?' sel':'')+(has?'':' lock');b.textContent=has?e:'🔒';b.disabled=!has;
+    b.setAttribute('aria-label','Avatar '+(has?e:'verrouillé'));b.onclick=()=>{P.av=e;saveP();buildPick()};a.appendChild(b);
   });
   const f=$('frs');f.innerHTML='';
-  ['none',...P.owned.filter(k=>k.startsWith('fr:')).map(k=>k.slice(3))].forEach(fr=>{
-    const b=document.createElement('button');b.type='button';b.className='av'+(fr===P.frame?' sel':'');
-    b.setAttribute('aria-label','Cadre '+fr);b.appendChild(mkAva(P.av,fr,'sm'));b.onclick=()=>{P.frame=fr;saveP();buildPick()};f.appendChild(b);
+  ['none',...ITEMS.filter(i=>i.k.startsWith('fr:')).map(i=>i.k.slice(3))].forEach(fr=>{
+    const has=owns('fr:'+fr),b=document.createElement('button');b.type='button';
+    b.className='av'+(fr===P.frame?' sel':'')+(has?'':' lock');b.disabled=!has;
+    b.setAttribute('aria-label','Cadre '+fr);if(has)b.appendChild(mkAva(P.av,fr,'sm'));else b.textContent='🔒';
+    b.onclick=()=>{P.frame=fr;saveP();buildPick()};f.appendChild(b);
   });
-  $('prof').textContent='Niveau '+lvl()+' · 🪙 '+P.coins;
+  setAva($('rewprev'),P.av,P.frame,'lg');
+  refreshHome();
 }
 
-/* Passe de combat */
+
 function renderPass(){
   const L=Math.floor(P.xp/XPL)+1;
   $('passhead').textContent='Niveau '+Math.min(L,20)+' · '+P.xp+' XP';
@@ -651,20 +695,37 @@ function trackMe(force){
   if(!force&&st===lastTrack)return;lastTrack=st;
   gch.track({name:P.name||'Joueur',av:P.av,fr:P.frame,room:room||'',open});
 }
+let pendingInv=[];
+async function joinFriend(code){
+  $('code').value=code;$('name').value=P.name||'';$('err').textContent='';
+  if(!P.name){show('s-menu');$('err').textContent='Entre ton prénom, puis clique sur « Rejoindre avec le code ».';return}
+  await enter(true);if(!room)show('s-menu');
+}
+async function inviteFriend(pid,btn){
+  if(room){if(gch)gch.send({type:'broadcast',event:'invite',payload:{to:pid,fromName:P.name||'Un ami',room}});if(btn){btn.textContent='Invité ✔';btn.disabled=true}return}
+  pendingInv=[pid];$('ferr').textContent='';$('err').textContent='';
+  if(!P.name){$('name').value='';show('s-menu');$('err').textContent="Entre ton prénom, puis clique sur « Créer une salle » : ton ami sera invité.";return}
+  $('name').value=P.name;
+  await enter(false);
+  if(!room){pendingInv=[];show('s-menu')}
+}
 function buildFriendsList(){
   const box=$('flist');box.innerHTML='';
   const ids=Object.keys(P.friends);
   if(!ids.length){const m=document.createElement('p');m.className='muted';m.textContent="Pas encore d'amis. Joue une partie, puis clique sur ➕ à côté d'un joueur.";box.appendChild(m)}
-  ids.forEach(pid=>{
+  ids.sort((a,b)=>(online[b]?1:0)-(online[a]?1:0)).forEach(pid=>{
     const f=P.friends[pid],info=online[pid]&&online[pid][0],row=mkRow();
     const t=document.createElement('span');t.style.flex='2';
-    const st=document.createElement('small');st.className='muted';st.textContent=info?(info.room?' 🟢 en salle '+info.room:' 🟢 en ligne'):' ⚪ hors ligne';
-    t.append(mkAva(f.av,(info&&info.fr)||'none','sm'),' '+f.name,st);row.appendChild(t);
-    if(info&&info.room&&info.open&&!room){const b=document.createElement('button');b.textContent='Rejoindre';b.style.cssText=smallBtn;
-      b.onclick=()=>{$('code').value=info.room;show('s-join');$('err').textContent='Entre ton prénom puis clique sur « Rejoindre avec le code ».'};row.appendChild(b)}
+    t.append(mkAva(f.av,(info&&info.fr)||'none','sm'),' '+f.name);
+    if(info){const d=document.createElement('span');d.className='dot';d.title='En ligne';t.appendChild(d);
+      const st=document.createElement('small');st.className='muted';st.textContent=info.room?'  en salle '+info.room:'  en ligne';t.appendChild(st)}
+    row.appendChild(t);
+    if(info&&info.room&&info.open&&info.room!==room){const b=document.createElement('button');b.textContent='Rejoindre';b.style.cssText=smallBtn;b.onclick=()=>joinFriend(info.room);row.appendChild(b)}
+    else if(info&&info.room!==room){const b=document.createElement('button');b.textContent='Inviter';b.style.cssText=smallBtn;b.onclick=()=>inviteFriend(pid,b);row.appendChild(b)}
     const x=document.createElement('button');x.textContent='✖';x.className='alt';x.setAttribute('aria-label','Retirer cet ami');x.style.cssText=smallBtn+';margin-left:6px';
     x.onclick=()=>{delete P.friends[pid];saveP();buildFriendsList()};row.appendChild(x);box.appendChild(row);
   });
+  $('dot').style.display=ids.some(pid=>online[pid])?'inline-block':'none';
 }
 function addFriend(p){
   P.friends[p.pid]={name:p.name,av:p.av};saveP();
@@ -697,19 +758,14 @@ function buildInvites(){
     row.append(t,b);box.appendChild(row);
   });
 }
-function onPresence(){
-  buildFriendsList();if(S&&S.phase==='lobby')buildInvites();
-  const on=Object.keys(P.friends).filter(pid=>online[pid]).map(pid=>P.friends[pid].name);
-  $('onl').textContent=on.length?'🟢 Amis en ligne : '+on.join(', '):'';
-}
+function onPresence(){buildFriendsList();if(S&&S.phase==='lobby')buildInvites()}
 function startGlobal(){
   try{
     gch=sb.channel('imite-online',{config:{presence:{key:P.pid},broadcast:{self:false}}});
     gch.on('presence',{event:'sync'},()=>{online=gch.presenceState();onPresence()});
     gch.on('broadcast',{event:'invite'},({payload})=>{
       if(payload.to!==P.pid)return;
-      notify(String(payload.fromName).slice(0,14)+" t'invite dans la salle "+String(payload.room).slice(0,4)+'.',room?'':'Rejoindre',()=>{
-        $('code').value=String(payload.room).slice(0,4);show('s-join');$('err').textContent='Entre ton prénom puis clique sur « Rejoindre avec le code ».'});
+      notify(String(payload.fromName).slice(0,14)+" t'invite dans la salle "+String(payload.room).slice(0,4)+'.',room?'':'Rejoindre',()=>joinFriend(String(payload.room).slice(0,4)));
     });
     gch.on('broadcast',{event:'friendadd'},({payload})=>{
       if(payload.to!==P.pid||!payload.from||P.friends[payload.from.pid])return;
@@ -730,11 +786,17 @@ function awardOnce(){
 }
 
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
-  const g=b.dataset.go;if(g==='s-pass')renderPass();if(g==='s-shop')renderShop();if(g==='s-friends')buildFriendsList();show(g);
+  const g=b.dataset.go;if(g==='s-shop')renderShop();if(g==='s-rew')buildPick();if(g==='s-join'){refreshHome();buildFriendsList()}
+  show(g);
 });
-document.querySelectorAll('.backj').forEach(b=>b.onclick=()=>{buildPick();show('s-join')});
+document.querySelectorAll('.backj').forEach(b=>b.onclick=()=>{refreshHome();buildFriendsList();show('s-join')});
+const openPass=()=>{renderPass();show('s-pass')};
+$('goplay').onclick=()=>{$('name').value=P.name||'';$('err').textContent='';show('s-menu')};
+$('gopass').onclick=openPass;$('topass').onclick=openPass;
+$('gofr').onclick=()=>{$('ferr').textContent='';buildFriendsList();show('s-friends')};
+$('name').oninput=e=>{P.name=e.target.value.trim().slice(0,14);saveP();refreshHome();trackMe()};
 $('quit').onclick=()=>{location.href=location.pathname+'?v='+VERSION};
-$('name').value=P.name||'';buildPick();startGlobal();
+$('name').value=P.name||'';buildPick();buildFriendsList();startGlobal();show('s-join');
 
 /* ---------- Avatars, idées, réactions ---------- */
 
