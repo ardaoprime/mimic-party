@@ -125,6 +125,48 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
 .stat b{display:block;font-size:1.3rem}.stat span{font-size:.72rem;opacity:.75;text-transform:uppercase;letter-spacing:.04em}
 .minibs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .minib{font-size:.85rem;border:1px solid var(--bc);border-radius:99px;padding:.1em .6em;background:#0008}
+
+button.topback{position:sticky;top:8px;z-index:6;width:auto;margin:0 0 10px;padding:.4em .9em;font-size:1rem;background:#0a0720d9;backdrop-filter:blur(8px);border:1px solid #ffffff30}
+.rar-l{filter:drop-shadow(0 0 7px #ffc83d)}.rar-e{filter:drop-shadow(0 0 5px #c04dff)}.rar-r{filter:drop-shadow(0 0 4px #4da6ff99)}
+.chips button.av{position:relative}
+button.av.lock .ava{filter:brightness(.75) saturate(.7)}
+button.av.lock::after{content:'🔒';position:absolute;right:-5px;bottom:-5px;font-size:.85rem}
+button.av.pv{outline:2px dashed #ffffffaa;outline-offset:2px}
+button.av.txt{border-radius:10px;padding:.35em .7em;font-size:.95rem;width:auto}
+.f-pixel{border:4px dotted #ff2e7e;box-shadow:0 0 0 2px #0a0720}
+.f-ruban{border:6px double #ffc83d}
+.f-glace{border-color:#b8f0ff;box-shadow:0 0 14px #8fe3ff,inset 0 0 12px #8fe3ff88}
+.f-toxique{border-color:#7dff3a;animation:tox 1.2s ease-in-out infinite alternate}
+@keyframes tox{from{box-shadow:0 0 6px #7dff3a}to{box-shadow:0 0 20px #b6ff5a,0 0 36px #7dff3a66}}
+.f-sang{border-color:#b3122a;animation:sang 1.4s ease-in-out infinite alternate}
+@keyframes sang{from{box-shadow:0 0 6px #b3122a,inset 0 0 8px #5a0010}to{box-shadow:0 0 22px #ff2a4a,inset 0 0 14px #b3122a}}
+.f-electrique{border-color:#bff3ff;animation:zap .3s steps(2,end) infinite}
+@keyframes zap{0%{box-shadow:0 0 6px #22e6d0}50%{box-shadow:0 0 22px #fff,0 0 34px #22e6d0}100%{box-shadow:0 0 8px #7c4dff}}
+.f-diamant{border-color:#e8fbff;box-shadow:0 0 10px #fff,0 0 22px #99ffff,inset 0 0 10px #ffffff99}
+.f-galaxie{border-color:transparent;background:linear-gradient(#15103a,#15103a) padding-box,linear-gradient(90deg,#4b2bc4,#22e6d0,#ff2e7e,#7c4dff,#4b2bc4) border-box;background-size:100% 100%,300% 100%;animation:slide 4s linear infinite}
+.f-arc{border-color:transparent;background:linear-gradient(#15103a,#15103a) padding-box,linear-gradient(90deg,#ff4d4d,#ffe14d,#5fe3c0,#4da6ff,#c04dff,#ff4d4d) border-box;background-size:100% 100%,300% 100%;animation:slide 3s linear infinite}
+.f-royal{border-color:transparent;background:linear-gradient(#15103a,#15103a) padding-box,linear-gradient(90deg,#ffc83d,#7c4dff,#ffe27a,#ff2e7e,#ffc83d) border-box;background-size:100% 100%,300% 100%;animation:slide 3.5s linear infinite;box-shadow:0 0 14px #ffc83d66}
+.f-holo{border-color:transparent;background:linear-gradient(#15103a,#15103a) padding-box,linear-gradient(90deg,#ffb3e6,#b3f0ff,#d9ffb3,#ffe9b3,#ffb3e6) border-box;background-size:100% 100%,300% 100%;animation:slide 1.6s linear infinite;box-shadow:0 0 16px #b3f0ff88}
+@keyframes slide{to{background-position:0 0,300% 0}}
+@media (prefers-reduced-motion:reduce){.f-toxique,.f-sang,.f-electrique,.f-galaxie,.f-royal,.f-holo,.f-arc{animation:none!important}}
+.waitico{font-size:2.6rem;animation:flip 2.4s ease-in-out infinite}
+@keyframes flip{0%,45%{transform:rotate(0)}55%,100%{transform:rotate(180deg)}}
+.dots i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--yel);margin:0 4px;animation:bl 1.2s ease-in-out infinite}
+.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+@media (prefers-reduced-motion:reduce){.waitico,.dots i{animation:none}}
+
+#rewhead{position:sticky;top:0;z-index:6;background:linear-gradient(#0a0720f4 82%,#0a072000);padding:8px 0 12px}
+#rewhead button.topback{position:static;margin:0;flex:none}
+.rewtop{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.rewtop h2{font-size:1.1rem}
+.rewcard{display:flex;align-items:center;gap:10px;margin:0;padding:8px 10px}
+.rewcard .ava{margin:0;flex:none}
+.rewtxt{flex:1;min-width:0}
+.rewtxt b{font-size:1.1rem}
+.rewtxt .rar{margin:0 0 2px}
+.rewtxt p{margin:2px 0 0;font-size:.9rem;line-height:1.25}
+#rewact{width:auto;margin:0;padding:.5em .8em;font-size:.9rem;flex:none}
 </style>
 </head>
 <body>
@@ -133,7 +175,7 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
 
 <section class="screen on" id="s-join" style="text-align:center">
   <h1>Imite-moi<br>si tu peux</h1>
-  <p class="muted" style="font-size:.8rem;margin-top:0">Version 10</p>
+  <p class="muted" style="font-size:.8rem;margin-top:0">Version 13</p>
   <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0">
     <span id="homeav" class="ava md f-none" style="margin:0;width:56px;height:56px;font-size:1.7rem"></span>
     <div style="text-align:left"><b id="homename"></b><br><small class="muted" id="prof"></small></div>
@@ -144,12 +186,14 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
 </section>
 
 <section class="screen" id="s-menu">
-  <button class="alt backj" style="width:auto;margin:0 0 10px;padding:.4em .9em;font-size:1rem">← Retour</button>
+  <button class="alt backj topback">← Retour</button>
   <h2>🎤 Jouer</h2>
   <div class="card">
     <input id="name" placeholder="Ton prénom" maxlength="14" autocomplete="off" style="margin-top:0">
     <input id="code" placeholder="Code de la salle (pour rejoindre)" maxlength="4" autocomplete="off" style="text-transform:uppercase">
-    <button id="create">Créer une salle</button>
+    <button id="quick">⚡ Partie rapide</button>
+    <p class="muted" id="oncnt" style="margin:6px 0 0;font-size:.95rem"></p>
+    <button id="create" class="alt">Créer une salle</button>
     <button id="join" class="alt">Rejoindre avec le code</button>
     <p class="err" id="err"></p>
   </div>
@@ -157,7 +201,7 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
 </section>
 
 <section class="screen" id="s-friends">
-  <button class="alt backj" style="width:auto;margin:0 0 10px;padding:.4em .9em;font-size:1rem">← Retour</button>
+  <button class="alt backj topback">← Retour</button>
   <h2>👥 Amis</h2>
   <p class="muted">Un point bleu veut dire que l'ami est en ligne : tu peux l'inviter. Pour ajouter un ami, utilise le bouton ➕ à côté de son nom pendant ou après une partie.</p>
   <p class="err" id="ferr"></p>
@@ -165,42 +209,52 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
 </section>
 
 <section class="screen" id="s-rew">
-  <h2>⭐ Mes récompenses</h2>
-  <p class="muted">Choisis l'avatar et le cadre que tu portes en jeu. Les objets grisés se débloquent dans la boutique ou dans le passe de combat.</p>
-  <div class="card" style="text-align:center"><div id="rewprev" class="ava lg f-none"></div></div>
-  <p class="muted" style="margin:6px 0 2px">Avatars</p>
-  <div class="chips" id="avs" style="margin-top:4px"></div>
-  <p class="muted" style="margin:6px 0 2px">Cadres</p>
-  <div class="chips" id="frs" style="margin-top:4px"></div>
+  <div id="rewhead">
+    <div class="rewtop"><button class="alt backj topback">← Retour</button><h2 style="margin:0">⭐ Mes récompenses</h2></div>
+    <div class="card rewcard">
+      <div id="rewprev" class="ava md f-none"></div>
+      <div class="rewtxt"><b id="rewname"></b><div id="rewrar" class="rar"></div><p class="muted" id="rewinfo"></p></div>
+      <button id="rewact">Équiper</button>
+    </div>
+  </div>
+  <p class="muted">Touche un objet pour le voir en grand en haut de l'écran. Les objets marqués 🔒 se gagnent dans le passe de combat ou s'achètent dans la boutique.</p>
+  <p class="sec">Avatars</p><div class="chips" id="avs"></div>
+  <p class="sec">Cadres</p><div class="chips" id="frs"></div>
+  <p class="sec">Titres</p><div class="chips" id="tis"></div>
+  <p class="sec">Réactions</p><div class="chips" id="rxs"></div>
   <button id="topass" class="alt">⭐ Voir le passe de combat</button>
 </section>
 
 <section class="screen" id="s-pass">
+  <button class="alt backj topback">← Retour</button>
   <h2>⭐ Passe de combat</h2>
   <p id="passhead" class="muted"></p>
   <div class="xp"><i id="passbar"></i></div>
-  <p class="muted" style="font-size:.9rem">Chaque point marqué en fin de partie donne de l'XP : 100 XP = 1 niveau. Passe gratuit, 20 niveaux. Le Passe Premium arrive plus tard.</p>
+  <p class="muted" style="font-size:.9rem">Chaque point marqué en fin de partie donne de l'XP : 100 XP = 1 niveau. Passe gratuit, 30 niveaux : pièces, avatars, cadres, titres et réactions. Le Passe Premium arrive plus tard.</p>
   <div id="passlist"></div>
-  <button class="alt backj">Retour</button>
 </section>
 
 <section class="screen" id="s-shop">
+  <button class="alt backj topback">← Retour</button>
   <h2>🎁 Boutique</h2>
   <p class="muted" id="coins"></p>
   <div class="card"><b>Cadeau du jour</b><p id="dailytxt" class="muted"></p><button id="dailybtn">Récupérer gratuitement</button></div>
   <div id="shoplist"></div>
-  <div class="card"><b>Premium (argent réel)</b><p class="muted">Packs de pièces et Passe de combat Premium : bientôt disponibles avec les applications. Les paiements demandent un compte vendeur, je ne les ai pas branchés pour l'instant.</p></div>
+  <div class="card"><b>Premium (argent réel)</b><p class="muted">Packs de pièces et Passe de combat Premium : bientôt disponibles avec les applications. Les paiements en argent réel arriveront avec les applications.</p></div>
 </section>
 
 
 
 <section class="screen" id="s-lobby">
+  <div id="waitbanner" class="card" style="display:none;text-align:center;border-color:#ffc83d"></div>
   <p class="muted">Code de la salle</p>
   <div class="code" id="lcode"></div>
   <button id="copy" class="alt">Copier le lien d'invitation</button>
+  <button id="share" class="alt">📤 Partager l'invitation</button>
   <div class="chips" id="chips"></div>
   <div id="invbox" style="display:none"></div>
   <div id="hostbox">
+    <label class="muted" style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><input type="checkbox" id="pubchk" style="width:auto;margin:0"> Salle publique : visible dans « Partie rapide »</label>
     <label class="muted" for="mode">Mode de jeu</label>
     <select id="mode">
       <option value="ami">Répliques d'un ami (chacun son tour)</option>
@@ -265,8 +319,8 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
     <button id="next" style="display:none"></button>
     <p class="muted" id="wait2"></p>
   </div>
-  <div id="reacts" class="row" style="justify-content:center;gap:10px;margin-top:18px">
-    <button class="re" aria-label="Rire">😂</button><button class="re" aria-label="Applaudir">👏</button><button class="re" aria-label="Feu">🔥</button><button class="re" aria-label="Mort de rire">💀</button>
+  <div id="reacts" class="row" style="justify-content:center;flex-wrap:wrap;gap:10px;margin-top:18px">
+    
   </div>
 </section>
 
@@ -279,6 +333,7 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
   <div id="pcards"></div>
   <p class="muted">Ajoute des amis avec ➕ :</p>
   <div class="chips" id="endchips"></div>
+  <button id="shareres" class="alt">📤 Partager mon score</button>
   <button id="again" style="display:none">Rejouer dans la même salle</button>
   <p class="muted" id="wait3"></p>
   <button id="quit" class="alt">Quitter la salle</button>
@@ -313,7 +368,7 @@ let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken
 /* ---------- Réseau (Supabase Realtime, sans serveur à toi) ---------- */
 const SB_URL='https://hyhkemsvxulgdymoznwt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5aGtlbXN2eHVsZ2R5bW96bnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MDkyMTIsImV4cCI6MjEwNzE4NTIxMn0.pdwyE5EoNuXKFwyR9saBOKxbEZQBFlVnROOBOxbroGI';
-const VERSION='10';
+const VERSION='13';
 function recOpts(bps){
   const t=['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus','audio/webm'].find(x=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(x));
   return t?{mimeType:t,audioBitsPerSecond:bps}:{audioBitsPerSecond:bps};
@@ -339,8 +394,8 @@ const SEG=[
  {t:'Poisse −30',f:(w)=>{w.score=Math.max(0,w.score-30);return w.name+' perd 30 points. Aïe.'}},
  {t:'Rien',f:()=>'Rien ne se passe. Suspense gâché.'}
 ];
-const pubR=()=>({room:R.code,phase:R.phase,hostId:R.hostId,round:R.round,rounds:R.rounds,token:R.token,ref:R.ref,wheel:R.wheel,mode:R.mode,performerId:R.performerId,v:VERSION,theme:R.theme,awards:R.awards||null,
-  players:[...R.players.values()].map(p=>({id:p.id,name:p.name,av:p.av,fr:p.fr,pid:p.pid,w:p.st?p.st.wins:0,avg:p.st&&p.st.n?Math.round(p.st.sum/p.st.n):0,best:p.st?p.st.best:0,pf:p.st?p.st.perfect:0,tot:p.tot||0,score:p.score,rs:p.rs,done:p.done}))});
+const pubR=()=>({room:R.code,phase:R.phase,hostId:R.hostId,round:R.round,rounds:R.rounds,token:R.token,ref:R.ref,wheel:R.wheel,mode:R.mode,performerId:R.performerId,v:VERSION,theme:R.theme,pub:!!R.pub,awards:R.awards||null,
+  players:[...R.players.values()].map(p=>({id:p.id,name:p.name,av:p.av,fr:p.fr,ti:p.ti,pid:p.pid,w:p.st?p.st.wins:0,avg:p.st&&p.st.n?Math.round(p.st.sum/p.st.n):0,best:p.st?p.st.best:0,pf:p.st?p.st.perfect:0,tot:p.tot||0,score:p.score,rs:p.rs,done:p.done}))});
 function push(){S=pubR();send('state',S);render()}
 function startRound(){
   R.round++;R.token=rid();R.wheel=null;R.ref=null;
@@ -380,6 +435,7 @@ function hostAct(id,b){
   const p=R.players.get(id);if(!p)return;const host=R.hostId===id;
   if(b.type==='mode'&&host&&R.phase==='lobby')R.mode=['ami','melodie','sons'].includes(b.v)?b.v:'ami';
   else if(b.type==='theme'&&host&&R.phase==='lobby')R.theme=['libre','animaux','persos','pub','emotions'].includes(b.v)?b.v:'libre';
+  else if(b.type==='pub'&&host&&R.phase==='lobby')R.pub=!!b.v;
   else if(b.type==='rounds'&&host&&R.phase==='lobby')R.rounds=Math.max(1,Math.min(15,+b.v||5));
   else if(b.type==='start'&&host&&R.phase==='lobby'){R.round=0;R.hist=[];R.bon={};R.awards=null;R.players.forEach(x=>{x.score=0;x.st=null});startRound()}
   else if(b.type==='submit'&&R.phase==='listen'&&!p.done){
@@ -390,13 +446,13 @@ function hostAct(id,b){
   else if(b.type==='again'&&host&&R.phase==='end'){R.phase='lobby';R.round=0;R.hist=[];R.bon={};R.awards=null;R.players.forEach(x=>{x.score=0;x.st=null})}
   push();
 }
-function hostHello({id,name,av,fr,pid,xp}){
+function hostHello({id,name,av,fr,pid,xp,ti}){
   if(R.players.has(id))return push();
   const rej=m=>send('reject',{id,error:m});
   if(R.phase!=='lobby')return rej('La partie a déjà commencé.');
   if([...R.players.values()].some(p=>p.name.toLowerCase()===name.toLowerCase()))return rej('Ce prénom est déjà pris.');
   if(R.players.size>=10)return rej('Salle pleine (10 joueurs).');
-  R.players.set(id,{id,name,av:String(av||'mimi').slice(0,12),fr:['none','neon','or','feu','arc'].includes(fr)?fr:'none',pid:String(pid||'').slice(0,40),xp0:Math.max(0,Math.min(1e6,Math.floor(+xp||0))),score:0,rs:0,done:false});push();
+  R.players.set(id,{id,name,av:String(av||'mimi').slice(0,12),fr:FR_IDS.includes(fr)?fr:'none',ti:(ti==='none'||TITLES[ti])?ti:'none',pid:String(pid||'').slice(0,40),xp0:Math.max(0,Math.min(1e6,Math.floor(+xp||0))),score:0,rs:0,done:false});push();
 }
 function computeAwards(){
   const all=[...R.players.values()];
@@ -432,7 +488,7 @@ function connect(code,host,name){
   ch=sb.channel('mimic-'+code,{config:{broadcast:{self:false},presence:{key:me}}});
   ch.on('broadcast',{event:'state'},({payload})=>{S=payload;render()});
   ch.on('broadcast',{event:'rtc'},({payload})=>onRtc(payload));
-  ch.on('broadcast',{event:'react'},({payload})=>{if(['😂','👏','🔥','💀'].includes(payload.e))floatEmoji(payload.e)});
+  ch.on('broadcast',{event:'react'},({payload})=>{if(ALL_RX.includes(payload.e))floatEmoji(payload.e)});
   ch.on('broadcast',{event:'imit'},({payload})=>{(imits[payload.token]=imits[payload.token]||{})[payload.id]={b64:payload.b64,mime:payload.mime}});
   ch.on('broadcast',{event:'clip'},({payload})=>{friendClips[payload.token]={b64:payload.b64,mime:payload.mime}});
   ch.on('broadcast',{event:'reject'},({payload})=>{if(payload.id===me)fail(payload.error)});
@@ -449,10 +505,10 @@ function connect(code,host,name){
   ch.subscribe(status=>{
     if(status==='SUBSCRIBED'){
       ch.track({name});
-      if(host){R={code,phase:'lobby',players:new Map(),hostId:me,round:0,rounds:5,token:'',ref:null,wheel:null,timer:null,mode:'ami',performerId:null,theme:'libre',hist:[],bon:{},awards:null};
-        R.players.set(me,{id:me,name,av:P.av,fr:P.frame,pid:P.pid,xp0:P.xp,score:0,rs:0,done:false});push();
+      if(host){R={code,phase:'lobby',players:new Map(),hostId:me,round:0,rounds:5,token:'',ref:null,wheel:null,timer:null,mode:'ami',performerId:null,theme:'libre',hist:[],bon:{},awards:null,pub:nextPub};nextPub=false;
+        R.players.set(me,{id:me,name,av:P.av,fr:P.frame,ti:P.title,pid:P.pid,xp0:P.xp,score:0,rs:0,done:false});push();
         pendingInv.forEach(pid=>{if(gch)gch.send({type:'broadcast',event:'invite',payload:{to:pid,fromName:P.name||'Un ami',room:code}})});pendingInv=[]}
-      else{send('hello',{id:me,name,av:P.av,fr:P.frame,pid:P.pid,xp:P.xp});setTimeout(()=>{if(!S&&ch)fail("Cette salle n'existe pas, ou son hôte n'est plus là.")},4000)}
+      else{send('hello',{id:me,name,av:P.av,fr:P.frame,pid:P.pid,xp:P.xp,ti:P.title});setTimeout(()=>{if(!S&&ch)fail("Cette salle n'existe pas, ou son hôte n'est plus là.")},4000)}
     }else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')fail('Connexion au serveur impossible. Réessaie.');
   });
 }
@@ -480,6 +536,12 @@ async function enter(joinRoom){
 $('vreload').onclick=()=>{location.href=location.pathname+'?room='+(room||'')+'&v='+(S&&S.v||Date.now())};
 $('create').onclick=()=>enter(false);
 $('join').onclick=()=>enter(true);
+$('pubchk').onchange=e=>act('pub',{v:e.target.checked});
+$('share').onclick=()=>{
+  const l=location.origin+location.pathname+'?room='+room+'&v='+VERSION,text='Rejoins ma partie de « Imite-moi si tu peux » ! Code de la salle : '+room;
+  if(navigator.share)navigator.share({title:'Imite-moi si tu peux',text,url:l}).catch(()=>{});
+  else (navigator.clipboard?navigator.clipboard.writeText(text+' '+l):Promise.reject()).then(()=>{$('share').textContent='Lien copié !'}).catch(()=>prompt('Copie ce message :',text+' '+l));
+};
 $('copy').onclick=()=>{const l=location.origin+location.pathname+'?room='+room+'&v='+VERSION;
   (navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(()=>$('copy').textContent='Lien copié !').catch(()=>prompt('Copie ce lien :',l))};
 $('rounds').oninput=e=>{$('rv').textContent=e.target.value;act('rounds',{v:+e.target.value})};
@@ -495,13 +557,24 @@ function render(){
     $('lcode').textContent=S.room;
     $('chips').innerHTML='';
     buildChips('chips');buildInvites();
+    const wb=$('waitbanner');
+    if(isHost())wb.style.display='none';
+    else{
+      const hn=(S.players.find(p=>p.id===S.hostId)||{}).name||"L'hôte";
+      wb.style.display='';wb.textContent='';
+      const a=document.createElement('div');a.className='waitico';a.textContent='⏳';
+      const b=document.createElement('b');b.style.fontSize='1.2rem';b.textContent=hn+' prépare la partie';
+      const c=document.createElement('p');c.className='muted';c.textContent="Tu n'as rien à faire : l'hôte choisit le mode et les réglages. La partie démarre toute seule, patiente un instant !";
+      const d=document.createElement('div');d.className='dots';d.innerHTML='<i></i><i></i><i></i>';
+      wb.append(a,b,c,d);
+    }
     $('hostbox').style.display=isHost()?'':'none';
     $('rv').textContent=S.rounds;if(isHost()&&document.activeElement!==$('rounds'))$('rounds').value=S.rounds;
-    $('waitHost').textContent=isHost()?'Tu es l\'hôte : lance la partie quand tout le monde est là.':"L'hôte (contour jaune) va lancer la partie.";
+    $('waitHost').textContent=isHost()?'Tu es l\'hôte : lance la partie quand tout le monde est là.':'';
     lastToken='';resToken='';perToken='';imits={};
     $('mode').value=S.mode||'ami';
     $('modeinfo').textContent=isHost()?'':'Mode : '+({ami:"Répliques d'un ami",melodie:'Mélodies',sons:'Répliques du dépôt'}[S.mode]||'');
-    $('theme').value=S.theme||'libre';
+    $('theme').value=S.theme||'libre';$('pubchk').checked=!!S.pub;
     show('s-lobby');
   }else if(S.phase==='perform'){
     const mineP=S.performerId===me;
@@ -567,7 +640,7 @@ function score(refF,pl){
 
 /* ---------- Répliques cultes (sons.json + fichiers audio du dépôt) ---------- */
 fetch('sons.json',{cache:'no-store'}).then(r=>r.ok?r.json():[]).then(a=>{clips=Array.isArray(a)?a.filter(c=>c&&c.fichier):[];updClip()}).catch(()=>updClip());
-function updClip(){$('mode').querySelector('option[value=sons]').disabled=!clips.length;$('clipinfo').textContent=clips.length?(clips.length+' répliques cultes chargées.'):'Aucune réplique trouvée (sons.json) : mode mélodies.'}
+function updClip(){$('mode').querySelector('option[value=sons]').disabled=!clips.length;$('clipinfo').textContent=clips.length?(clips.length+(clips.length>1?' répliques cultes chargées.':' réplique culte chargée.')):'Aucune réplique trouvée (sons.json) : mode mélodies.'}
 const clipCache={};
 async function loadClip(url){
   if(clipCache[url])return clipCache[url];
@@ -640,7 +713,7 @@ function syncPeers(){
 $('mutebtn').onclick=()=>{userMuted=!userMuted;syncPeers()};
 
 /* ---------- Profil, passe de combat, boutique, amis ---------- */
-const XPL=100;
+const XPL=100,MAXL=30;
 const EYES={
  round:`<circle cx="39" cy="48" r="8.5" fill="#fff"/><circle cx="61" cy="48" r="8.5" fill="#fff"/><circle cx="41" cy="49" r="4.2" fill="#111"/><circle cx="59" cy="49" r="4.2" fill="#111"/><circle cx="42.4" cy="47.4" r="1.4" fill="#fff"/><circle cx="60.4" cy="47.4" r="1.4" fill="#fff"/>`,
  crazy:`<circle cx="38" cy="47" r="9.5" fill="#fff"/><circle cx="62" cy="49" r="7" fill="#fff"/><circle cx="36" cy="49" r="3.6" fill="#111"/><circle cx="64" cy="47" r="3" fill="#111"/>`,
@@ -650,7 +723,9 @@ const EYES={
  cool:`<circle cx="39" cy="49" r="8" fill="#fff"/><circle cx="61" cy="49" r="8" fill="#fff"/><circle cx="40" cy="51" r="3.8" fill="#111"/><circle cx="60" cy="51" r="3.8" fill="#111"/><path d="M30 46h18M52 46h18" stroke="#111" stroke-width="5" stroke-linecap="round"/>`,
  robot:`<rect x="29" y="41" width="18" height="14" rx="3" fill="#06202a"/><rect x="53" y="41" width="18" height="14" rx="3" fill="#06202a"/><rect x="32" y="44" width="12" height="8" rx="2" fill="#22e6d0"/><rect x="56" y="44" width="12" height="8" rx="2" fill="#22e6d0"/>`,
  alien:`<ellipse cx="36" cy="49" rx="9" ry="12" fill="#0b0b14" transform="rotate(-18 36 49)"/><ellipse cx="64" cy="49" rx="9" ry="12" fill="#0b0b14" transform="rotate(18 64 49)"/><circle cx="33" cy="45" r="2.3" fill="#fff9"/><circle cx="61" cy="45" r="2.3" fill="#fff9"/>`,
- patch:`<circle cx="62" cy="48" r="8.5" fill="#fff"/><circle cx="60" cy="49" r="4.2" fill="#111"/><circle cx="38" cy="48" r="10" fill="#15151f"/><path d="M28 38L72 32" stroke="#15151f" stroke-width="3"/>`
+ patch:`<circle cx="62" cy="48" r="8.5" fill="#fff"/><circle cx="60" cy="49" r="4.2" fill="#111"/><circle cx="38" cy="48" r="10" fill="#15151f"/><path d="M28 38L72 32" stroke="#15151f" stroke-width="3"/>`,
+ hollow:`<ellipse cx="39" cy="50" rx="6" ry="9" fill="#0b0b14"/><ellipse cx="61" cy="50" rx="6" ry="9" fill="#0b0b14"/>`,
+ visor:`<path d="M22 38H78V54Q50 63 22 54Z" fill="#06202a" stroke="#22e6d0" stroke-width="2.5"/><path d="M27 46H73" stroke="#22e6d0" stroke-width="4" stroke-linecap="round"/><circle cx="34" cy="46" r="2" fill="#fff"/>`
 };
 const MOUTH={
  shout:`<path d="M33 62Q50 92 67 62Z" fill="#4a0f22"/><path d="M40 76Q50 70 60 76Q50 85 40 76Z" fill="#ff6b8b"/><path d="M33 62h34" stroke="#fff" stroke-width="3"/>`,
@@ -660,7 +735,8 @@ const MOUTH={
  fang:`<path d="M35 66Q50 76 65 66" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M41 69l3 8 3-6M59 69l-3 8-3-6" fill="#fff" stroke="#111" stroke-width="1.4"/>`,
  o:`<ellipse cx="50" cy="70" rx="6" ry="7.5" fill="#4a0f22"/>`,
  grid:`<rect x="34" y="64" width="32" height="12" rx="3" fill="#06202a"/><path d="M42 64v12M50 64v12M58 64v12" stroke="#22e6d0" stroke-width="2"/>`,
- mask:`<path d="M20 58Q50 74 80 58L78 80Q50 92 22 80Z" fill="#171a26"/>`
+ mask:`<path d="M20 58Q50 74 80 58L78 80Q50 92 22 80Z" fill="#171a26"/>`,
+ menpo:`<path d="M24 60Q50 72 76 60L72 82Q50 94 28 82Z" fill="#b8202a" stroke="#4a0a10" stroke-width="2"/><path d="M36 70v14M44 72v14M52 72v14M60 70v14" stroke="#ffc83d" stroke-width="2"/>`
 };
 const ACC={
  none:'',
@@ -677,7 +753,26 @@ const ACC={
  bandana:`<path d="M19 38Q50 22 81 38L81 46Q50 34 19 46Z" fill="#d6252e" stroke="#7a1118" stroke-width="2"/><circle cx="36" cy="40" r="2" fill="#fff"/><circle cx="50" cy="37" r="2" fill="#fff"/><circle cx="64" cy="40" r="2" fill="#fff"/>`,
  hair:`<path d="M22 46Q18 12 52 12Q82 12 78 44Q70 26 52 28Q34 26 22 46Z" fill="#12121c" stroke="#000" stroke-width="2"/>`,
  mic:`<rect x="72" y="68" width="6" height="30" rx="3" fill="#2a2a3d" transform="rotate(20 75 83)"/><circle cx="78" cy="64" r="9" fill="#cfd3e6" stroke="#2a2a3d" stroke-width="3"/><path d="M72 62h12M73 67h10" stroke="#2a2a3d" stroke-width="1.6"/>`,
- sparkle:`<path d="M16 22l2.6 6.4 6.4 2.6-6.4 2.6L16 40l-2.6-6.4L7 31l6.4-2.6Z" fill="#fff" opacity=".9"/><path d="M84 18l2 4.5 4.5 2-4.5 2-2 4.5-2-4.5-4.5-2 4.5-2Z" fill="#ffe27a"/>`
+ sparkle:`<path d="M16 22l2.6 6.4 6.4 2.6-6.4 2.6L16 40l-2.6-6.4L7 31l6.4-2.6Z" fill="#fff" opacity=".9"/><path d="M84 18l2 4.5 4.5 2-4.5 2-2 4.5-2-4.5-4.5-2 4.5-2Z" fill="#ffe27a"/>`,
+ chef:`<path d="M28 30Q20 12 36 12Q38 0 50 4Q62 0 64 12Q80 12 72 30Z" fill="#fff" stroke="#9a9ab0" stroke-width="2.5" stroke-linejoin="round"/><rect x="28" y="28" width="44" height="9" rx="3" fill="#f2f2f8" stroke="#9a9ab0" stroke-width="2.5"/>`,
+ cowboy:`<path d="M8 38Q50 50 92 38Q72 32 70 20Q60 8 50 14Q40 8 30 20Q28 32 8 38Z" fill="#a86a2a" stroke="#5a3410" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 30Q50 36 68 30" stroke="#5a3410" stroke-width="3.5" fill="none"/>`,
+ catears:`<path d="M22 34L20 8 40 22Z" fill="#ffb3c7" stroke="#3a3a55" stroke-width="3" stroke-linejoin="round"/><path d="M78 34L80 8 60 22Z" fill="#ffb3c7" stroke="#3a3a55" stroke-width="3" stroke-linejoin="round"/>`,
+ viking:`<path d="M20 40Q20 12 50 12Q80 12 80 40Z" fill="#9aa3b8" stroke="#3a4156" stroke-width="2.5"/><rect x="18" y="35" width="64" height="7" rx="2" fill="#6b7389" stroke="#3a4156" stroke-width="2"/><path d="M22 36Q0 30 6 6Q16 22 28 28Z" fill="#f4ecd0" stroke="#8a7a4a" stroke-width="2.5" stroke-linejoin="round"/><path d="M78 36Q100 30 94 6Q84 22 72 28Z" fill="#f4ecd0" stroke="#8a7a4a" stroke-width="2.5" stroke-linejoin="round"/>`,
+ nose:`<circle cx="50" cy="58" r="6.5" fill="#e2323c" stroke="#7a1118" stroke-width="2"/><circle cx="48" cy="56" r="1.8" fill="#fff8"/>`,
+ gamer:`<path d="M19 54Q17 14 50 14Q83 14 81 54" stroke="#161625" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="11" y="44" width="15" height="26" rx="7" fill="#22e6d0" stroke="#161625" stroke-width="3"/><rect x="74" y="44" width="15" height="26" rx="7" fill="#22e6d0" stroke="#161625" stroke-width="3"/><path d="M16 68Q18 86 40 84" stroke="#161625" stroke-width="3.5" fill="none"/><circle cx="42" cy="84" r="4.5" fill="#ff2e7e" stroke="#161625" stroke-width="2"/>`,
+ helmet:`<circle cx="50" cy="52" r="37" fill="#9fe8ff22" stroke="#e8f4ff" stroke-width="5"/><path d="M26 30Q38 16 56 18" stroke="#fff9" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="30" y="84" width="40" height="9" rx="4" fill="#dfe8f5" stroke="#8a97b0" stroke-width="2"/>`,
+ pharaoh:`<path d="M18 46Q16 8 50 8Q84 8 82 46L76 74 68 46Q50 32 32 46L24 74Z" fill="#1f5fd8" stroke="#0a2a78" stroke-width="2.5" stroke-linejoin="round"/><path d="M22 28H78M20 38H80" stroke="#ffc83d" stroke-width="3.5"/><circle cx="50" cy="14" r="4.5" fill="#ffc83d" stroke="#b27800" stroke-width="1.5"/><path d="M45 82h10l-2 14h-6Z" fill="#1f5fd8" stroke="#0a2a78" stroke-width="2"/>`,
+ kabuto:`<path d="M18 42Q20 10 50 10Q80 10 82 42Q50 31 18 42Z" fill="#b8202a" stroke="#4a0a10" stroke-width="2.5"/><path d="M50 14Q40 2 30 4Q38 14 50 14ZM50 14Q60 2 70 4Q62 14 50 14Z" fill="#ffc83d" stroke="#b27800" stroke-width="2"/><path d="M18 42Q50 31 82 42" stroke="#ffc83d" stroke-width="3" fill="none"/>`,
+ neonhair:`<path d="M28 28L24 8 37 18 43 0 50 16 58 2 63 18 76 8 72 28Z" fill="#22e6d0" stroke="#7c4dff" stroke-width="2.5" stroke-linejoin="round"/><path d="M40 24L45 8 50 20 56 8 60 24Z" fill="#ff2e7e"/>`,
+ flames:`<path d="M24 36Q14 22 26 6Q28 18 34 16Q32 2 44 -4Q44 10 50 12Q54 0 62 -2Q60 12 66 14Q72 8 76 4Q82 22 72 36Z" fill="#ff7a1a" stroke="#c2260f" stroke-width="2"/><path d="M36 32Q33 20 42 11Q44 20 50 20Q56 11 63 13Q67 22 64 32Z" fill="#ffd45e"/>`,
+ horns:`<path d="M28 32Q16 16 24 2Q32 14 42 24Z" fill="#c2260f" stroke="#5a0f06" stroke-width="2.5" stroke-linejoin="round"/><path d="M72 32Q84 16 76 2Q68 14 58 24Z" fill="#c2260f" stroke="#5a0f06" stroke-width="2.5" stroke-linejoin="round"/>`
+};
+const ACCB={
+ wings:`<path d="M22 62Q-8 58 -2 16Q14 28 28 44Z" fill="#fff" stroke="#9aa6c8" stroke-width="2.5" stroke-linejoin="round"/><path d="M78 62Q108 58 102 16Q86 28 72 44Z" fill="#fff" stroke="#9aa6c8" stroke-width="2.5" stroke-linejoin="round"/>`,
+ firewings:`<path d="M22 62Q-10 54 -2 10Q14 24 28 42Z" fill="#ff7a1a" stroke="#c2260f" stroke-width="2.5" stroke-linejoin="round"/><path d="M78 62Q110 54 102 10Q86 24 72 42Z" fill="#ff7a1a" stroke="#c2260f" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 56Q4 50 6 26Q16 36 26 46Z" fill="#ffd45e"/><path d="M80 56Q96 50 94 26Q84 36 74 46Z" fill="#ffd45e"/>`,
+ rays:`<g stroke="#ffe27a" stroke-width="3.5" stroke-linecap="round" opacity=".75"><path d="M50 52L50 -12M50 52L96 6M50 52L112 52M50 52L96 98M50 52L50 112M50 52L4 98M50 52L-12 52M50 52L4 6"/></g>`,
+ bunny:`<ellipse cx="36" cy="16" rx="7.5" ry="21" fill="#fff" stroke="#9a9ab0" stroke-width="2.5" transform="rotate(-8 36 16)"/><ellipse cx="36" cy="16" rx="3.5" ry="14" fill="#ffb3c7" transform="rotate(-8 36 16)"/><ellipse cx="64" cy="16" rx="7.5" ry="21" fill="#fff" stroke="#9a9ab0" stroke-width="2.5" transform="rotate(8 64 16)"/><ellipse cx="64" cy="16" rx="3.5" ry="14" fill="#ffb3c7" transform="rotate(8 64 16)"/>`,
+ clownhair:`<circle cx="18" cy="40" r="12" fill="#ff7a1a" stroke="#9a3c00" stroke-width="2.5"/><circle cx="82" cy="40" r="12" fill="#22e6d0" stroke="#0a7a6a" stroke-width="2.5"/><circle cx="26" cy="26" r="9" fill="#ff2e7e" stroke="#9a0f4a" stroke-width="2.5"/><circle cx="74" cy="26" r="9" fill="#ffc83d" stroke="#b27800" stroke-width="2.5"/>`
 };
 const RAR={
  c:{n:'Commun',bg:['#3a3a6a','#15103a'],col:'#9aa0c8'},
@@ -701,38 +796,70 @@ const AV={
  dragon:{n:'Dragon',c:['#ff8a5a','#c2260f'],eyes:'angry',mouth:'fang',acc:['spikes'],r:'e',p:320},
  diva:{n:'Diva',c:['#ff8ad8','#b4248f'],eyes:'wink',mouth:'shout',acc:['mic','sparkle'],r:'e',p:300},
  roi:{n:'Roi du Karaoké',c:['#ffd27a','#e08a00'],eyes:'cool',mouth:'shout',acc:['crown'],r:'e',p:300},
- legende:{n:'La Légende',c:['#fff2a8','#ffb100'],eyes:'cool',mouth:'smirk',acc:['crown','sparkle'],r:'l',p:600}
+ legende:{n:'La Légende',c:['#fff2a8','#ffb100'],eyes:'cool',mouth:'smirk',acc:['crown','sparkle'],r:'l',p:800}
+ ,chef:{n:'Le Chef',c:['#ffd9b0','#d49a66'],eyes:'round',mouth:'smirk',acc:['chef'],r:'c',p:100},
+ cowboy:{n:'Cow-boy',c:['#f0c49a','#b87a45'],eyes:'cool',mouth:'smirk',acc:['cowboy'],r:'c',p:120},
+ cat:{n:'Matou',c:['#ffc27a','#e0842a'],eyes:'wink',mouth:'smirk',acc:['catears'],r:'c',p:130},
+ bunny:{n:'Lapinou',c:['#ffffff','#c9ccd6'],eyes:'crazy',mouth:'teeth',acc:[],back:['bunny'],r:'c',p:130},
+ clown:{n:'Le Clown',c:['#ffe7d0','#e0a878'],eyes:'crazy',mouth:'shout',acc:['nose'],back:['clownhair'],r:'r',p:200},
+ gamer:{n:'Gamer',c:['#b9b3ff','#5a50d6'],eyes:'shades',mouth:'smirk',acc:['gamer'],r:'r',p:210},
+ fantome:{n:'Fantôme',c:['#ffffff','#b8c6ff'],eyes:'hollow',mouth:'o',acc:['sparkle'],r:'r',p:230},
+ viking:{n:'Viking',c:['#f0c49a','#b87a45'],eyes:'angry',mouth:'shout',acc:['viking'],r:'e',p:280},
+ astro:{n:'Astronaute',c:['#ffe7d0','#d9a77a'],eyes:'round',mouth:'o',acc:['helmet'],r:'e',p:300},
+ ange:{n:'Ange',c:['#fff1d6','#f0c27a'],eyes:'wink',mouth:'smirk',acc:['halo'],back:['wings'],r:'e',p:320},
+ diablotin:{n:'Diablotin',c:['#ff7b7b','#c2260f'],eyes:'angry',mouth:'fang',acc:['horns'],r:'e',p:320},
+ phenix:{n:'Phénix',c:['#ffd45e','#ff5a1a'],eyes:'cool',mouth:'smirk',acc:['flames'],back:['firewings'],r:'l',p:900},
+ pharaon:{n:'Pharaon',c:['#e8c07a','#a8742a'],eyes:'cool',mouth:'smirk',acc:['pharaoh'],r:'l',p:1000},
+ samourai:{n:'Samouraï Doré',c:['#f0d2b0','#c08a58'],eyes:'angry',mouth:'menpo',acc:['kabuto'],r:'l',p:1000},
+ cyber:{n:'Cyber-Voix',c:['#6b6fa8','#2a2d6b'],eyes:'visor',mouth:'grid',acc:['neonhair'],r:'l',p:1100},
+ dieu:{n:'Dieu du Son',c:['#ffffff','#ffd24d'],eyes:'cool',mouth:'smirk',acc:['halo','sparkle'],back:['rays'],r:'l',p:1500}
 };
 function avSVG(id){
   const a=AV[id],bg=RAR[a.r].bg;
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><radialGradient id="g_${id}" cx="35%" cy="30%"><stop offset="0" stop-color="${a.c[0]}"/><stop offset="1" stop-color="${a.c[1]}"/></radialGradient><radialGradient id="b_${id}" cx="50%" cy="25%" r="80%"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></radialGradient></defs><rect width="100" height="100" fill="url(#b_${id})"/><path d="M12 100Q12 79 50 81Q88 79 88 100Z" fill="${a.c[1]}" stroke="#0007" stroke-width="2"/><circle cx="50" cy="52" r="32" fill="url(#g_${id})" stroke="#0008" stroke-width="2.4"/><ellipse cx="37" cy="36" rx="10" ry="5.5" fill="#fff4" transform="rotate(-25 37 36)"/>${EYES[a.eyes]}${MOUTH[a.mouth]}${a.acc.map(k=>ACC[k]||'').join('')}</svg>`;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><radialGradient id="g_${id}" cx="35%" cy="30%"><stop offset="0" stop-color="${a.c[0]}"/><stop offset="1" stop-color="${a.c[1]}"/></radialGradient><radialGradient id="b_${id}" cx="50%" cy="25%" r="80%"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></radialGradient></defs><rect width="100" height="100" fill="url(#b_${id})"/>${(a.back||[]).map(k=>ACCB[k]||'').join('')}<path d="M12 100Q12 79 50 81Q88 79 88 100Z" fill="${a.c[1]}" stroke="#0007" stroke-width="2"/><circle cx="50" cy="52" r="32" fill="url(#g_${id})" stroke="#0008" stroke-width="2.4"/><ellipse cx="37" cy="36" rx="10" ry="5.5" fill="#fff4" transform="rotate(-25 37 36)"/>${EYES[a.eyes]}${MOUTH[a.mouth]}${a.acc.map(k=>ACC[k]||'').join('')}</svg>`;
 }
 const BASE_AV=Object.keys(AV).filter(k=>!AV[k].p);
 const ITEMS=[
  ...Object.keys(AV).filter(k=>AV[k].p).map(k=>({k:'av:'+k,n:AV[k].n,p:AV[k].p,r:AV[k].r})),
- {k:'fr:neon',n:'Cadre néon',p:120,r:'r'},{k:'fr:or',n:'Cadre doré',p:250,r:'e'},{k:'fr:feu',n:'Cadre de feu',p:400,r:'e'},{k:'fr:arc',n:'Cadre arc-en-ciel',p:600,r:'l'}
+ {k:'fr:pixel',n:'Cadre rétro',p:100,r:'c'},{k:'fr:ruban',n:'Double filet',p:120,r:'c'},
+ {k:'fr:neon',n:'Cadre néon',p:120,r:'r'},{k:'fr:glace',n:'Cadre de glace',p:180,r:'r'},{k:'fr:toxique',n:'Cadre toxique',p:180,r:'r'},
+ {k:'fr:sang',n:'Cadre sang',p:250,r:'e'},{k:'fr:electrique',n:'Cadre électrique',p:300,r:'e'},{k:'fr:or',n:'Cadre doré',p:250,r:'e'},
+ {k:'fr:feu',n:'Cadre de feu',p:400,r:'e'},{k:'fr:galaxie',n:'Cadre galaxie',p:450,r:'e'},
+ {k:'fr:diamant',n:'Cadre diamant',p:600,r:'l'},{k:'fr:arc',n:'Cadre arc-en-ciel',p:600,r:'l'},{k:'fr:royal',n:'Cadre royal',p:700,r:'l'},{k:'fr:holo',n:'Cadre hologramme',p:800,r:'l'}
 ];
-const REW={5:'fr:neon',10:'av:ninja',15:'fr:or',20:'av:legende'};
-const PASS=Array.from({length:20},(_,i)=>REW[i+1]?{l:i+1,item:REW[i+1]}:{l:i+1,c:30+Math.floor(i/4)*10});
+const FR_IDS=['none',...ITEMS.filter(i=>i.k.startsWith('fr:')).map(i=>i.k.slice(3))];
+const TITLES={rookie:'Nouveau talent',fou:'Imitateur fou',oreille:'Oreille absolue',star:'Superstar',legende:'Légende vivante'};
+const BASE_RX=['😂','👏','🔥','💀'];
+const ALL_RX=[...BASE_RX,'🤯','🥳','😭','🫡','🤌'];
+const REW={2:'ti:rookie',4:'rx:🤯',5:'fr:glace',7:'av:chef',8:'ti:fou',10:'av:ninja',11:'rx:🥳',13:'fr:electrique',14:'ti:oreille',15:'av:viking',17:'rx:😭',18:'fr:galaxie',20:'av:astro',21:'ti:star',23:'rx:🫡',24:'fr:royal',25:'av:pharaon',27:'ti:legende',28:'rx:🤌',30:'av:dieu'};
+const PASS=Array.from({length:30},(_,i)=>REW[i+1]?{l:i+1,item:REW[i+1]}:{l:i+1,c:30+Math.floor(i/3)*10});
 const rid2=()=>Math.random().toString(36).slice(2,10);
 let P=(()=>{try{const x=JSON.parse(localStorage.getItem('imite.p')||'null');if(x&&x.pid)return x}catch(e){}return null})()
   ||{pid:rid2()+rid2(),name:'',xp:0,coins:0,owned:[],av:BASE_AV[Math.floor(Math.random()*BASE_AV.length)],frame:'none',claimed:[],daily:'',friends:{}};
 P.owned=P.owned||[];P.claimed=P.claimed||[];P.friends=P.friends||{};P.frame=P.frame||'none';
-P.owned=P.owned.filter(k=>ITEMS.some(i=>i.k===k));if(!AV[P.av])P.av='mimi';
+P.owned=P.owned.filter(k=>ITEMS.some(i=>i.k===k)||/^(ti|rx):/.test(k));if(!AV[P.av])P.av='mimi';
+P.title=P.title||'none';P.streak=P.streak||0;P.lastDay=P.lastDay||'';if(!FR_IDS.includes(P.frame))P.frame='none';
+let prevSel={t:'av',id:P.av};
 const saveP=()=>{try{localStorage.setItem('imite.p',JSON.stringify(P))}catch(e){}};
-const owns=k=>k==='fr:none'||(k.startsWith('av:')&&BASE_AV.includes(k.slice(3)))||P.owned.includes(k);
+const owns=k=>{const t=k.slice(0,2),id=k.slice(3);
+  if(k==='fr:none'||k==='ti:none')return true;
+  if(t==='av')return BASE_AV.includes(id)||P.owned.includes(k);
+  if(t==='rx')return BASE_RX.includes(id)||P.owned.includes(k);
+  return P.owned.includes(k)};
 const giveItem=k=>{if(!owns(k))P.owned.push(k);saveP()};
-const itemName=k=>{const i=ITEMS.find(x=>x.k===k);return i?i.n:k};
-const lvl=()=>Math.min(20,Math.floor(P.xp/XPL)+1);
+const itemName=k=>{const t=k.slice(0,2),id=k.slice(3),i=ITEMS.find(x=>x.k===k);
+  if(i)return i.n;if(t==='av')return AV[id]?AV[id].n:id;if(t==='ti')return id==='none'?'Aucun titre':(TITLES[id]||id);
+  if(t==='rx')return 'Réaction '+id;return id==='none'?'Aucun cadre':id};
+const lvl=()=>Math.min(MAXL,Math.floor(P.xp/XPL)+1);
 const today=()=>new Date().toISOString().slice(0,10);
 
 function setAva(el,av,fr,sz,bounce){
-  el.className='ava '+(sz||'lg')+' f-'+(fr||'none');
+  el.className='ava '+(sz||'lg')+' f-'+(fr||'none')+(AV[av]?' rar-'+AV[av].r:'');
   if(AV[av])el.innerHTML=avSVG(av);else el.textContent=av||'🙂';
   if(bounce){void el.offsetWidth;el.classList.add('bounce')}
 }
 function mkAva(av,fr,sz){const e=document.createElement('span');setAva(e,av,fr,sz||'sm');return e}
-const lvlOf=t=>Math.min(20,Math.floor(t/XPL)+1);
+const lvlOf=t=>Math.min(MAXL,Math.floor(t/XPL)+1);
 const smallBtn='width:auto;margin:0;padding:.4em .8em;font-size:1rem';
 const mkRow=()=>{const r=document.createElement('div');r.className='card row';r.style.alignItems='center';return r};
 
@@ -744,37 +871,71 @@ function refreshHome(){
   const L=Math.floor(P.xp/XPL)+1;
   $('pdot').style.display=PASS.some(r=>L>=r.l&&!P.claimed.includes(r.l))?'inline-block':'none';
 }
+function infoFor(k){
+  const it=ITEMS.find(i=>i.k===k),pl=PASS.find(r=>r.item===k),how=[];
+  if(it)how.push('Boutique : 🪙 '+it.p);if(pl)how.push('Passe de combat : niveau '+pl.l);
+  const av=k.startsWith('av:')?AV[k.slice(3)]:null;
+  return{r:(it&&it.r)||(av&&av.r)||'c',how:how.join(' · ')||'Offert'};
+}
 function buildPick(){
-  const a=$('avs');a.innerHTML='';
-  Object.keys(AV).forEach(id=>{
-    const has=owns('av:'+id),b=document.createElement('button');b.type='button';
-    b.className='av'+(id===P.av?' sel':'')+(has?'':' lock');b.disabled=!has;
-    b.setAttribute('aria-label','Avatar '+AV[id].n+(has?'':' (verrouillé)'));
-    b.appendChild(mkAva(id,'none','pk'));b.onclick=()=>{P.av=id;saveP();buildPick()};a.appendChild(b);
+  const grp=(boxId,t,ids,draw,cur)=>{
+    const box=$(boxId);box.innerHTML='';
+    ids.forEach(id=>{
+      const k=t+':'+id,has=owns(k),b=document.createElement('button');b.type='button';
+      b.className='av'+(cur===id?' sel':'')+(prevSel.t===t&&prevSel.id===id?' pv':'')+(has?'':' lock');
+      b.setAttribute('aria-label',itemName(k)+(has?'':' (verrouillé)'));
+      draw(b,id);b.onclick=()=>{prevSel={t,id};buildPick()};box.appendChild(b);
+    });
+  };
+  grp('avs','av',Object.keys(AV),(b,id)=>b.appendChild(mkAva(id,'none','pk')),P.av);
+  grp('frs','fr',FR_IDS,(b,id)=>b.appendChild(mkAva(P.av,id,'pk')),P.frame);
+  grp('tis','ti',['none',...Object.keys(TITLES)],(b,id)=>{b.classList.add('txt');b.textContent=id==='none'?'Aucun':TITLES[id]},P.title);
+  grp('rxs','rx',ALL_RX,(b,id)=>{b.classList.add('txt');b.textContent=id},null);
+  const {t,id}=prevSel,k=t+':'+id,has=owns(k),inf=infoFor(k);
+  setAva($('rewprev'),t==='av'?id:P.av,t==='fr'?id:P.frame,'md');
+  $('rewname').textContent=itemName(k);
+  const rr=RAR[inf.r]||RAR.c;$('rewrar').textContent=rr.n;$('rewrar').style.color=rr.col;
+  const btn=$('rewact');btn.style.display='';btn.className='';btn.disabled=false;
+  const cur=t==='av'?P.av:t==='fr'?P.frame:t==='ti'?P.title:null;
+  if(has){
+    if(t==='rx'){$('rewinfo').textContent='Disponible dans tes réactions pendant les parties.';btn.style.display='none'}
+    else if(cur===id){$('rewinfo').textContent='Tu portes cet objet.';btn.textContent='Équipé';btn.className='alt';btn.disabled=true}
+    else{$('rewinfo').textContent='Tu possèdes cet objet.';btn.textContent='Équiper';
+      btn.onclick=()=>{if(t==='av')P.av=id;else if(t==='fr')P.frame=id;else P.title=id;saveP();buildPick()}}
+  }else{
+    $('rewinfo').textContent='Verrouillé — '+inf.how;
+    const shop=!!ITEMS.find(i=>i.k===k);
+    btn.textContent=shop?'Aller à la boutique':'Voir le passe de combat';btn.className='alt';
+    btn.onclick=()=>{if(shop){renderShop();show('s-shop')}else{renderPass();show('s-pass')}};
+  }
+  buildReacts();refreshHome();
+}
+function buildReacts(){
+  const box=$('reacts');box.innerHTML='';
+  ALL_RX.filter(e=>owns('rx:'+e)).forEach(e=>{
+    const b=document.createElement('button');b.className='re';b.textContent=e;b.setAttribute('aria-label','Réaction '+e);
+    b.onclick=()=>{const n=Date.now();if(n-lastReact<250||!ch)return;lastReact=n;floatEmoji(e);send('react',{e})};box.appendChild(b);
   });
-  const f=$('frs');f.innerHTML='';
-  ['none',...ITEMS.filter(i=>i.k.startsWith('fr:')).map(i=>i.k.slice(3))].forEach(fr=>{
-    const has=owns('fr:'+fr),b=document.createElement('button');b.type='button';
-    b.className='av'+(fr===P.frame?' sel':'')+(has?'':' lock');b.disabled=!has;
-    b.setAttribute('aria-label','Cadre '+fr+(has?'':' (verrouillé)'));b.appendChild(mkAva(P.av,fr,'pk'));
-    b.onclick=()=>{P.frame=fr;saveP();buildPick()};f.appendChild(b);
-  });
-  setAva($('rewprev'),P.av,P.frame,'lg');
-  refreshHome();
 }
 
+function passPreview(k){
+  const t=k.slice(0,2),id=k.slice(3);
+  if(t==='av')return mkAva(id,'none','sm');if(t==='fr')return mkAva(P.av,id,'sm');
+  const e=document.createElement('span');e.style.cssText='font-size:1.4rem;min-width:1.9em;text-align:center';e.textContent=t==='rx'?id:'🏷️';return e;
+}
 function renderPass(){
   const L=Math.floor(P.xp/XPL)+1;
-  $('passhead').textContent='Niveau '+Math.min(L,20)+' · '+P.xp+' XP';
-  $('passbar').style.width=(L>=20?100:(P.xp%XPL))+'%';
+  $('passhead').textContent='Niveau '+Math.min(L,MAXL)+' · '+P.xp+' XP';
+  $('passbar').style.width=(L>=MAXL?100:(P.xp%XPL))+'%';
   const box=$('passlist');box.innerHTML='';
   PASS.forEach(r=>{
     const row=mkRow(),reach=L>=r.l,got=P.claimed.includes(r.l);
-    const t=document.createElement('span');t.style.flex='2';t.textContent='Niv. '+r.l+' : '+(r.c?'🪙 '+r.c:itemName(r.item));
+    const pv=r.c?(()=>{const e=document.createElement('span');e.style.cssText='font-size:1.4rem;min-width:1.9em;text-align:center';e.textContent='🪙';return e})():passPreview(r.item);
+    const t=document.createElement('span');t.style.flex='2';t.textContent='Niv. '+r.l+' : '+(r.c?r.c+' pièces':itemName(r.item));
     const b=document.createElement('button');b.style.cssText=smallBtn;b.textContent=got?'✔':reach?'Récupérer':'🔒';
     b.disabled=got||!reach;b.className=(got||!reach)?'alt':'';
-    b.onclick=()=>{if(r.c)P.coins+=r.c;else giveItem(r.item);P.claimed.push(r.l);saveP();renderPass();buildPick()};
-    row.append(t,b);box.appendChild(row);
+    b.onclick=()=>{if(r.c)P.coins+=r.c;else if(owns(r.item))P.coins+=50;else giveItem(r.item);P.claimed.push(r.l);saveP();renderPass();buildPick()};
+    row.append(pv,t,b);box.appendChild(row);
   });
 }
 
@@ -783,9 +944,11 @@ function dailyGift(){const pool=ITEMS.filter(i=>!owns(i.k));return pool.length?p
 function renderShop(){
   $('coins').textContent='🪙 '+P.coins;
   const g=dailyGift(),done=P.daily===today();
-  $('dailytxt').textContent=done?"Déjà récupéré aujourd'hui. Reviens demain !":(g?"Aujourd'hui : "+g.n+' offert.':'Tout est débloqué : 50 🪙 offerts.');
+  const y=new Date(Date.now()-864e5).toISOString().slice(0,10),sk=(P.lastDay===today()||P.lastDay===y)?P.streak:0;
+  $('dailytxt').textContent=(done?"Déjà récupéré aujourd'hui. Reviens demain !":(g?"Aujourd'hui : "+g.n+' offert.':'Tout est débloqué : 50 🪙 offerts.'))+(sk?' Série : '+sk+' jour'+(sk>1?'s':'')+" d'affilée (bonus de pièces chaque jour).":' Reviens chaque jour pour gagner une série de bonus.');
   $('dailybtn').disabled=done;
-  $('dailybtn').onclick=()=>{if(P.daily===today())return;const x=dailyGift();if(x)giveItem(x.k);else P.coins+=50;P.daily=today();saveP();renderShop();buildPick()};
+  $('dailybtn').onclick=()=>{if(P.daily===today())return;const x=dailyGift();if(x)giveItem(x.k);else P.coins+=50;
+    P.streak=(P.lastDay===y?P.streak+1:1);P.lastDay=today();P.coins+=Math.min(50,P.streak*10);P.daily=today();saveP();renderShop();buildPick()};
   const box=$('shoplist');box.innerHTML='';
   ITEMS.forEach(i=>{
     const isAv=i.k.startsWith('av:'),val=i.k.slice(3),rar=RAR[i.r]||RAR.r;
@@ -811,11 +974,17 @@ function notify(txt,label,fn){
 }
 function trackMe(force){
   if(!gch)return;
-  const open=!!(room&&S&&S.phase==='lobby'),st=(room||'')+'|'+open+'|'+P.name+P.av+P.frame;
+  const open=!!(room&&S&&S.phase==='lobby'),pub=!!(open&&amHost&&S.pub),st=(room||'')+'|'+open+'|'+pub+'|'+P.name+P.av+P.frame;
   if(!force&&st===lastTrack)return;lastTrack=st;
-  gch.track({name:P.name||'Joueur',av:P.av,fr:P.frame,room:room||'',open});
+  gch.track({name:P.name||'Joueur',av:P.av,fr:P.frame,room:room||'',open,pub});
 }
-let pendingInv=[];
+let pendingInv=[],nextPub=false;
+async function quickPlay(){
+  $('err').textContent='';if(!$('name').value.trim())$('name').value=P.name||'';
+  const open=Object.values(online).map(v=>v[0]).filter(i=>i&&i.pub&&i.open&&i.room);
+  if(open.length){$('code').value=open[Math.floor(Math.random()*open.length)].room;await enter(true);if(!room)show('s-menu');return}
+  nextPub=true;await enter(false);if(!room)nextPub=false;
+}
 async function joinFriend(code){
   $('code').value=code;$('name').value=P.name||'';$('err').textContent='';
   if(!P.name){show('s-menu');$('err').textContent='Entre ton prénom, puis clique sur « Rejoindre avec le code ».';return}
@@ -878,7 +1047,8 @@ function buildInvites(){
     row.append(t,b);box.appendChild(row);
   });
 }
-function onPresence(){buildFriendsList();if(S&&S.phase==='lobby')buildInvites()}
+function onPresence(){buildFriendsList();if(S&&S.phase==='lobby')buildInvites();
+  const n=Object.keys(online).length;$('oncnt').textContent=n>1?'🟢 '+n+' joueurs en ligne en ce moment':''}
 function startGlobal(){
   try{
     gch=sb.channel('imite-online',{config:{presence:{key:P.pid},broadcast:{self:false}}});
@@ -915,6 +1085,7 @@ function renderEnd(o){
     const h=document.createElement('div');h.className='phead';
     const av=mkAva(p.av,p.fr,'md');av.style.margin='0';if(i===0)av.classList.add('bounce');
     const nm=document.createElement('div');nm.className='pname';nm.textContent=(i===0?'👑 ':(i+1)+'. ')+p.name;
+    if(TITLES[p.ti]){const tt=document.createElement('small');tt.className='muted';tt.style.display='block';tt.textContent=TITLES[p.ti];nm.appendChild(tt)}
     const lv=document.createElement('span');lv.className='lvl';lv.textContent='NIV '+lvlOf(p.tot||0);
     h.append(av,nm,lv);c.appendChild(h);
     const g=document.createElement('div');g.className='stats';
@@ -943,10 +1114,18 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
 });
 document.querySelectorAll('.backj').forEach(b=>b.onclick=()=>{refreshHome();buildFriendsList();show('s-join')});
 const openPass=()=>{renderPass();show('s-pass')};
+$('quick').onclick=quickPlay;
 $('goplay').onclick=()=>{$('name').value=P.name||'';$('err').textContent='';show('s-menu')};
 $('gopass').onclick=openPass;$('topass').onclick=openPass;
 $('gofr').onclick=()=>{$('ferr').textContent='';buildFriendsList();show('s-friends')};
 $('name').oninput=e=>{P.name=e.target.value.trim().slice(0,14);saveP();refreshHome();trackMe()};
+$('shareres').onclick=()=>{
+  const o=S.players.slice().sort((a,b)=>b.score-a.score),i=o.findIndex(p=>p.id===me),m=o[i]||{score:0};
+  const text="J'ai fini "+(i+1)+(i===0?'er':'e')+' sur '+o.length+' avec '+m.score+' points dans « Imite-moi si tu peux » ! Viens m\'imiter si tu peux.';
+  const l=location.origin+location.pathname;
+  if(navigator.share)navigator.share({title:'Imite-moi si tu peux',text,url:l}).catch(()=>{});
+  else (navigator.clipboard?navigator.clipboard.writeText(text+' '+l):Promise.reject()).then(()=>{$('shareres').textContent='Message copié !'}).catch(()=>prompt('Copie ce message :',text+' '+l));
+};
 $('quit').onclick=()=>{location.href=location.pathname+'?v='+VERSION};
 (function(){const e=$('eq');for(let i=0;i<46;i++){const b=document.createElement('i');b.style.height=(25+Math.random()*75)+'%';b.style.animationDuration=(.7+Math.random()*1)+'s';b.style.animationDelay=(-Math.random()*1.5)+'s';e.appendChild(b)}})();
 $('name').value=P.name||'';buildPick();buildFriendsList();startGlobal();show('s-join');
@@ -972,9 +1151,6 @@ function floatEmoji(e){
   d.style.cssText='position:fixed;bottom:70px;font-size:2.2rem;pointer-events:none;z-index:8;left:'+(8+Math.random()*80)+'vw;animation:fl 2s ease-out forwards';
   document.body.appendChild(d);setTimeout(()=>d.remove(),2100);
 }
-document.querySelectorAll('#reacts button').forEach(b=>b.onclick=()=>{
-  const n=Date.now();if(n-lastReact<250||!ch)return;lastReact=n;floatEmoji(b.textContent);send('react',{e:b.textContent});
-});
 
 /* ---------- Réplique d'un ami ---------- */
 $('mode').onchange=e=>act('mode',{v:e.target.value});
