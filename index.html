@@ -110,7 +110,7 @@ button.av.lock .ava{filter:grayscale(1) brightness(.55)}
 .shopc{text-align:center;border:2px solid var(--bc);margin:0;box-shadow:0 0 16px -6px var(--bc)}
 .rar{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:700}
 #badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
-.badge{text-align:center;padding:14px 8px 10px;border-radius:14px;border:2px solid var(--bc);background:linear-gradient(180deg,color-mix(in srgb,var(--bc) 30%,#0a0720),#0a0720);box-shadow:0 0 18px -4px var(--bc)}
+.badge{text-align:center;padding:14px 8px 10px;border-radius:14px;border:2px solid var(--bc);background:#14103a;background:linear-gradient(180deg,color-mix(in srgb,var(--bc) 30%,#0a0720),#0a0720);box-shadow:0 0 18px -4px var(--bc)}
 .bic{font-size:2.2rem;line-height:1;filter:drop-shadow(0 0 8px var(--bc))}
 .bnm{font-family:"Bungee","Impact",sans-serif;font-size:.78rem;text-transform:uppercase;margin:6px 0 4px;color:#fff}
 .bpl{display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700}
@@ -167,6 +167,10 @@ button.av.txt{border-radius:10px;padding:.35em .7em;font-size:.95rem;width:auto}
 .rewtxt .rar{margin:0 0 2px}
 .rewtxt p{margin:2px 0 0;font-size:.9rem;line-height:1.25}
 #rewact{width:auto;margin:0;padding:.5em .8em;font-size:.9rem;flex:none}
+
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
+.card,#tabs,button.topback{-webkit-backdrop-filter:blur(8px)}
 </style>
 </head>
 <body>
@@ -175,7 +179,7 @@ button.av.txt{border-radius:10px;padding:.35em .7em;font-size:.95rem;width:auto}
 
 <section class="screen on" id="s-join" style="text-align:center">
   <h1>Imite-moi<br>si tu peux</h1>
-  <p class="muted" style="font-size:.8rem;margin-top:0">Version 13</p>
+  <p class="muted" style="font-size:.8rem;margin-top:0">Version 14</p>
   <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0">
     <span id="homeav" class="ava md f-none" style="margin:0;width:56px;height:56px;font-size:1.7rem"></span>
     <div style="text-align:left"><b id="homename"></b><br><small class="muted" id="prof"></small></div>
@@ -368,7 +372,7 @@ let me=null,room=null,S=null,ac=null,stream=null,analyser=null,es=null,lastToken
 /* ---------- Réseau (Supabase Realtime, sans serveur à toi) ---------- */
 const SB_URL='https://hyhkemsvxulgdymoznwt.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5aGtlbXN2eHVsZ2R5bW96bnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MDkyMTIsImV4cCI6MjEwNzE4NTIxMn0.pdwyE5EoNuXKFwyR9saBOKxbEZQBFlVnROOBOxbroGI';
-const VERSION='13';
+const VERSION='14';
 function recOpts(bps){
   const t=['audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/webm;codecs=opus','audio/webm'].find(x=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(x));
   return t?{mimeType:t,audioBitsPerSecond:bps}:{audioBitsPerSecond:bps};
@@ -1127,6 +1131,7 @@ $('shareres').onclick=()=>{
   else (navigator.clipboard?navigator.clipboard.writeText(text+' '+l):Promise.reject()).then(()=>{$('shareres').textContent='Message copié !'}).catch(()=>prompt('Copie ce message :',text+' '+l));
 };
 $('quit').onclick=()=>{location.href=location.pathname+'?v='+VERSION};
+document.addEventListener('pointerdown',()=>{if(ac&&ac.state==='suspended')ac.resume();peers.forEach(p=>{if(p.audio.srcObject&&p.audio.paused)p.audio.play().catch(()=>{})})},{passive:true});
 (function(){const e=$('eq');for(let i=0;i<46;i++){const b=document.createElement('i');b.style.height=(25+Math.random()*75)+'%';b.style.animationDuration=(.7+Math.random()*1)+'s';b.style.animationDelay=(-Math.random()*1.5)+'s';e.appendChild(b)}})();
 $('name').value=P.name||'';buildPick();buildFriendsList();startGlobal();show('s-join');
 
